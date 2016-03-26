@@ -1,12 +1,14 @@
 package com.org.buisnesslogic.ActionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.org.buisnesslogic.relationVerifiers.RequiredVerifier;
 import com.org.coursegenrator.utilities.Constants;
 import com.org.sg.DAO.ConceptDAO;
 import com.org.sg.DAO.LearnerConceptDAO;
@@ -171,16 +173,29 @@ public class LearnerActionHandler extends AbstractActionHandler {
 
 		Learner l = new Learner();
 		l.setNewObject(true);
+		
+		List<LearnerConcept> learnerConceptList = new ArrayList<>();
 
 		if (learner.getId() != null && !learner.getId().equals(0)) {
 			l = learnerDAO.findById(learner.getId());
 			learner.setNewObject(false);
-			learnerConceptDAO.deleteOfLearner(learner.getId());
+			//learnerConceptDAO.deleteOfLearner(learner.getId());
 		} else {
 			UserDAO userDAO = new UserDAO();
 			l.setUser(userDAO.findById((Integer) learner.getSession().get(
 					Constants.LOGIN_ID)));
 
+		}
+		
+		learnerConceptList = learnerConceptDAO.findOfLearner(l.getId());
+		
+		Map<Integer, LearnerConcept> lcMap = new HashMap<>();
+		Map<Integer, LearnerConcept> deleteLcMap = new HashMap<>();
+		
+		
+		for(LearnerConcept lc : learnerConceptList)
+		{
+			lcMap.put(lc.getConcept().getId(), lc);
 		}
 
 		l.setName(learner.getName());
@@ -205,27 +220,52 @@ public class LearnerActionHandler extends AbstractActionHandler {
 		}
 		
 		
-
-		
+		RequiredVerifier verifier = new RequiredVerifier(); 
+		boolean errorOccured = false;
 		for (Map<String, String> maps : jsoned) {
 			Integer id = Integer.valueOf(maps.get("concept"));
 			if (id != null && !id.equals(0)) {
 				
 				LearnerConcept learnerConcept = new LearnerConcept();
-				learnerConcept.setLearner(l);
-				learnerConcept.setConcept(conceptDAO.findById(id));
-				learnerConcept.setValue(maps.get("values"));
-				learnerConcept.setDescription(maps.get("desc"));
-				learnerConceptDAO.save(learnerConcept);
+				
+				if(lcMap.containsKey(id))
+					learnerConcept = lcMap.get(id);
+				else
+				{
+				    learnerConcept.setLearner(l);
+					Concept c = conceptDAO.findById(id);
+					learnerConcept.setConcept(c);
+				}
+				List<String>  verifyList = verifier.verify(maps.get("values"), l, learnerConcept.getConcept(),lcMap);
+				if(verifyList.size() == 0)
+				{
+					learnerConcept.setValue(maps.get("values"));
+					learnerConcept.setDescription(maps.get("desc"));
+					learnerConceptDAO.save(learnerConcept);
+					deleteLcMap.put(id,learnerConcept);
+				}
+				else
+				{
+					errorOccured = true;
+					learner.getErrors().addAll(verifyList);
+				}
 			}
 		}
 
+		for(Integer lcId : lcMap.keySet())
+		{
+			if(deleteLcMap.containsKey(lcId))
+				learnerConceptDAO.delete(lcMap.get(lcId));
+		}
+		
 		learnerprojectDAO.save(learnerproject);
 
 		learner.setId(l.getId());
 		learner.setNewObject(l.getNewObject());
 	
-		learner.getErrors().add("Learner Saved Successfully");
+		if(!errorOccured)
+			learner.getErrors().add("Learner Saved Successfully");
+		
 		Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
 		responseMap.put("messages", learner.getErrors());
 		responseMap.put("id", l.getId());
