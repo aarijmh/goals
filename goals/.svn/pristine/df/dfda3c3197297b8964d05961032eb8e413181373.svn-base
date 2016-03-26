@@ -1,0 +1,178 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.CPropertyDAO;
+import com.org.sg.DAO.ConceptDAO;
+import com.org.sg.DAO.ConceptrelationDAO;
+import com.org.sg.DAO.FunctionsDAO;
+import com.org.sg.DAO.ProjectDAO;
+import com.org.sg.DAO.RelationDAO;
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.ConceptPr;
+import com.org.sg.POJO.action.Conceptrelation;
+import com.org.sg.POJO.action.Gameresource;
+import com.org.sg.POJO.action.PedagogicalGame;
+import com.org.sg.POJO.action.Pedagogicalresource;
+import com.org.sg.POJO.action.Project;
+import com.org.sg.UtilityClasses.ObjectGraph;
+
+public class ConceptActionHandler extends AbstractActionHandler {
+
+	Concept concept;
+	
+	public ConceptActionHandler(Concept con)
+	{
+		this.concept = con;
+	}
+	
+	@Override
+	public void processing() {
+		
+		if(concept.getAction().equalsIgnoreCase(Constants.LOGGED))
+			show();
+		else if(concept.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT))
+			showAddEdit();
+		else if(concept.getAction().equalsIgnoreCase(Constants.ADD_EDIT))
+			addEdit();
+		else if(concept.getAction().equalsIgnoreCase(Constants.DELETE))
+			delete();
+		else if(concept.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT_CONCEPT))
+			showAddEditConcept();
+	}
+	
+	public void show(){
+		
+	}
+	
+	public void showAddEdit()
+	{
+		ConceptDAO conceptDAO = new ConceptDAO();
+		RelationDAO relationDAO = new RelationDAO();
+		FunctionsDAO functionsDAO = new FunctionsDAO();
+		ConceptrelationDAO conceptrelationDAO = new ConceptrelationDAO();
+		CPropertyDAO cPropertyDAO = new CPropertyDAO();
+
+		
+		if(concept.getId() != null && !concept.getId().equals(0))
+		{
+			Concept p = conceptDAO.findById(concept.getId());
+			concept.setName(p.getName().replaceAll("'", "\'"));
+			concept.setDescription(p.getDescription().replaceAll("'", "\'"));
+			concept.setId(p.getId());
+			concept.setConceptRelationList(conceptrelationDAO.findAllRelationOfConcept(concept.getId()));
+			concept.setConceptPropertyList(cPropertyDAO.findOfConcept(concept.getId()));
+		}
+		
+		concept.setConceptList(conceptDAO.findOfProject(concept.getProjectId()));
+		concept.setFunctionsList(functionsDAO.findAll());
+		concept.setRelationList(relationDAO.findAll());
+	}
+	
+	public void addEdit()
+	{
+		
+	}
+	
+	public void delete()
+	{
+		
+	}
+
+	public void showAddEditConcept()
+	{
+		ProjectDAO projectDAO = new ProjectDAO(); 
+		Project project = projectDAO.findById(8);
+		
+		List<ObjectGraph> graphs = new ArrayList<ObjectGraph>();
+		List<Concept> cList = new ArrayList<Concept>();
+		cList.addAll(project.getConcepts());
+
+		Gson gson =  new GsonBuilder().setPrettyPrinting().create();
+		
+		
+		for (Concept c : cList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(c.getId());
+			og.setType(1);
+			og.setName(c.getName());
+			og.setDescription(c.getDescription());
+			graphs.add(og);
+		}
+
+		for (Concept c : cList) {
+			for (Conceptrelation cr : c.getConceptrelationsForConceptFrom()) {
+				ObjectGraph og = new ObjectGraph();
+				og.setId(cr.getId());
+				og.setChild(cr.getConceptByConceptTo().getId());
+				og.setChildName(cr.getConceptByConceptTo().getName());
+				og.setType(4);
+				og.setName(cr.toString());
+				og.setParent(c.getId());
+				og.setParentName(c.getName());
+
+				og.setRelationType(cr.getRelation().getId());
+				graphs.add(og);
+	
+			}
+		}
+
+		List<Pedagogicalresource> pedList = new ArrayList<Pedagogicalresource>(project.getPedagogicalresources());
+
+		for (Pedagogicalresource p : pedList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(p.getId());
+			og.setType(2);
+			og.setName(p.getName());
+			og.setDescription(p.getDescription());
+			graphs.add(og);
+
+			for (ConceptPr cpr : p.getConceptPrs()) {
+				ObjectGraph ogr = new ObjectGraph();
+				ogr.setId(cpr.getId());
+				ogr.setChild(cpr.getPedagogicalresource().getId());
+				ogr.setChildName(cpr.getPedagogicalresource().getName());
+				ogr.setType(5);
+				ogr.setName(cpr.toString());
+				ogr.setParent(cpr.getConcept().getId());
+				ogr.setParentName(cpr.getConcept().getName());
+
+				graphs.add(ogr);
+			}
+		}
+
+		List<Gameresource> gaList = new ArrayList<Gameresource>(project.getGameresources());
+
+		for (Gameresource gr : gaList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(gr.getId());
+			og.setType(3);
+			og.setName(gr.getName());
+			og.setDescription(gr.getValue());
+			graphs.add(og);
+
+			for (PedagogicalGame cpr : gr.getPedagogicalGames()) {
+				ObjectGraph ogr = new ObjectGraph();
+				ogr.setId(cpr.getId());
+				ogr.setChild(cpr.getGameresource().getId());
+				ogr.setChildName(cpr.getGameresource().getName());
+				ogr.setType(6);
+				ogr.setName(cpr.toString());
+				ogr.setParent(cpr.getPedagogicalresource().getId());
+				ogr.setParentName(cpr.getPedagogicalresource().getName());
+
+				graphs.add(ogr);
+			}
+		}
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"data\":").append(gson.toJson(graphs)).append("}");
+		//concept.setJsonObject(builder.toString());
+		concept.setJsonObject(gson.toJson(graphs));
+//		System.out.println(gson.toJson(graphs));
+	}
+}

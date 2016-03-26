@@ -1,0 +1,3 @@
+eclipse.preferences.version=1
+validator.Checked=WebRoot/script/bootstrapValidator.js,WebRoot/WEB-INF/script/cytoscape.js,WebRoot/script/cytoscape.js
+validator.Unchecked=

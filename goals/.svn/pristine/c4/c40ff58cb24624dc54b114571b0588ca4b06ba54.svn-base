@@ -1,0 +1,59 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.org.buisnesslogic.ScenarioGenerator;
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.Utility.action.Scenario;
+
+public class ScenarioActionHandler extends AbstractActionHandler {
+	
+	Scenario scenario;
+	
+	public ScenarioActionHandler(Scenario scenario)
+	{
+		this.scenario = scenario;
+	}
+	@Override
+	public void processing() {
+		if(Constants.GENERATE_SCENARIO.equalsIgnoreCase(scenario.getAction()))
+		{
+			generateScenario();
+		}
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void generateScenario()
+	{
+		Gson gson = new Gson();
+
+		List<Map<String, String>> jsoned = new ArrayList<Map<String, String>>();
+		jsoned = gson.fromJson(scenario.getJson(), List.class);
+		
+		List<Integer> cList = new ArrayList<Integer>();
+		List<String> vList = new ArrayList<String>();
+		
+		for(Map<String, String> map : jsoned)
+		{
+			cList.add(Integer.parseInt(map.get("concept")));
+			vList.add(map.get("values"));
+		}
+		
+		
+		ScenarioGenerator generator = new ScenarioGenerator(cList,vList,scenario.getLearnerId(),scenario.getPresentationId());
+		generator.generateScenario();
+		
+		Map<String, Object> responseMap = new LinkedHashMap<String, Object>();
+		responseMap.put("messages", scenario.getErrors());
+		responseMap.put("html", generator.getTextualScenario(generator.getResults(), 1));
+		scenario.setJson(gson.toJson(responseMap));
+		
+	}
+	
+
+}

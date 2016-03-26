@@ -1,0 +1,207 @@
+package com.org.sg.POJO.action;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.ResultPath;
+import org.apache.struts2.convention.annotation.Results;
+
+import com.opensymphony.xwork2.Action;
+import com.org.buisnesslogic.ActionHandlers.AbstractActionHandler;
+import com.org.buisnesslogic.ActionHandlers.PresentationActionHandler;
+import com.org.coursegenrator.utilities.Constants;
+
+/**
+ * Presentation entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "presentation")
+@ResultPath(value = "/")
+@Results({ 
+	    @Result(name = Constants.SHOW, location = "showPresentation.jsp"),
+	    @Result(name = Constants.SHOW_ADD_EDIT, location = "showAddEditPresentation.jsp"),
+	    @Result(name = Constants.SHOW_JSON, location = "jsonData.jsp"),
+	    @Result(name = Constants.ADD_EDIT, location = "jsonData.jsp")})
+public class Presentation extends AbstractPOJO implements java.io.Serializable, Action{
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8577053366359028365L;
+	private Integer id;
+	private Project project;
+	private String name;
+	private String description;
+	private Set<LearnerTraces> learnerTraceses = new HashSet<LearnerTraces>(0);
+	private Set<PresentationPr> presentationPrs = new HashSet<PresentationPr>(0);
+	private Set<ScenarioTrace> scenarioTraces = new HashSet<ScenarioTrace>(0);
+
+	private Boolean newObject;
+	private List<Presentation> presentationList = new ArrayList<Presentation>();
+	private List<Pedagogicalresource> prList = new ArrayList<Pedagogicalresource>();
+	private Integer projectId;
+	private String json;
+	// Constructors
+
+	/** default constructor */
+	public Presentation() {
+	}
+
+	/** minimal constructor */
+	public Presentation(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Presentation(Integer id, Project project, String name,
+			String description, Set<LearnerTraces> learnerTraceses,
+			Set<PresentationPr> presentationPrs,
+			Set<ScenarioTrace> scenarioTraces) {
+		this.id = id;
+		this.project = project;
+		this.name = name;
+		this.description = description;
+		this.learnerTraceses = learnerTraceses;
+		this.presentationPrs = presentationPrs;
+		this.scenarioTraces = scenarioTraces;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project")
+	public Project getProject() {
+		return this.project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "description", length = 65535)
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "presentation")
+	public Set<LearnerTraces> getLearnerTraceses() {
+		return this.learnerTraceses;
+	}
+
+	public void setLearnerTraceses(Set<LearnerTraces> learnerTraceses) {
+		this.learnerTraceses = learnerTraceses;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "presentation")
+	public Set<PresentationPr> getPresentationPrs() {
+		return this.presentationPrs;
+	}
+
+	public void setPresentationPrs(Set<PresentationPr> presentationPrs) {
+		this.presentationPrs = presentationPrs;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "presentation")
+	public Set<ScenarioTrace> getScenarioTraces() {
+		return this.scenarioTraces;
+	}
+
+	public void setScenarioTraces(Set<ScenarioTrace> scenarioTraces) {
+		this.scenarioTraces = scenarioTraces;
+	}
+
+	@Transient
+	public Boolean getNewObject() {
+		return newObject;
+	}
+
+	public void setNewObject(Boolean newObject) {
+		this.newObject = newObject;
+	}
+
+	@Transient
+	public List<Presentation> getPresentationList() {
+		return presentationList;
+	}
+
+	public void setPresentationList(List<Presentation> presentationList) {
+		this.presentationList = presentationList;
+	}
+
+	@Transient
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
+
+	@Transient
+	public List<Pedagogicalresource> getPrList() {
+		return prList;
+	}
+
+	public void setPrList(List<Pedagogicalresource> prList) {
+		this.prList = prList;
+	}
+
+	@Transient
+	public String getJson() {
+		return json;
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+	}
+
+	@Override
+	public String execute() throws Exception {
+		
+		AbstractActionHandler actionHandler = new PresentationActionHandler(this);
+		actionHandler.execute();
+		
+		return getAction();
+	}
+
+}

@@ -1,0 +1,56 @@
+package com.org.coursegenrator.utilities;
+
+public class Constants {
+
+	private Constants()
+	{
+		
+	}
+	
+	public static final Integer HAS_PARTS_ID = 1;
+	public static final Integer REQUIRED_ID = 2;
+	public static final Integer TYPE_OF_ID = 3;
+	public static final Integer PARALLEL_ID = 4;
+	
+	public static final Integer RANDOM_RANGE = 10000000;
+	
+	
+	public static final String ENCODE_STRING = "goals87%%";
+	public static final String LOGIN = "login";
+	public static final String LOGIN_ID = "loginId";
+	public static final String LOGIN_NAME = "loginName";
+	public static final String LOGIN_TYPE = "loginType";
+	public static final String LOGIN_LEARNER = "loginLearner";
+	public static final String PROJECT_ID = "projectId";
+	public static final String PROJECT_NAME = "projectName";
+	
+	/*
+	 * Action Messages
+	 */
+	public static final String LOGGED = "logged";
+	public static final String WELCOME = "welcome";
+	public static final String SHOW_ADD_EDIT = "showAddEdit";
+	public static final String ADD_EDIT = "addEdit";
+	public static final String DELETE = "delete";
+	public static final String SHOW = "show";
+	public static final String OPEN_PROJECT = "openProject";
+	public static final String SHOW_ADD_EDIT_CONCEPT = "showAddEditConcept";
+	public static final String SHOW_JSON = "showJSON";
+	public static final String SHOW_PROPERTIES = "showProperties";
+	public static final String SHOW_ADD_EDIT_RELATION = "showAddEditRelation";
+	public static final String SHOW_JSON_RELATION = "showJSONRelation";
+	public static final String ADD_EDIT_RELATION = "addEditRelation";
+	public static final String SHOW_WORKSPACE = "showWorkspace";
+	public static final String SHOW_ADD_EDIT_WORKSPACE = "showAddEditWorkspace";
+	public static final String ADD_EDIT_WORKSPACE = "addEditWorkspace";
+	public static final String SHOW_GENERATOR = "showGenerator";
+	public static final String GENERATE_SCENARIO = "generateScenario";
+	
+	/*
+	 * Error Messages
+	 */
+	
+	public static final String EMPTY_LOGIN_ERROR = "Username or Password is exmpty";
+	public static final String INVALID_USERNAME_ERROR = "Username does not exist";
+	public static final String INVALID_USERNAME_PASSWORD_ERROR = "Username/Password not correct";
+}

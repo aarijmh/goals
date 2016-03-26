@@ -1,0 +1,261 @@
+package com.org.sg.DAO;
+
+import static org.hibernate.criterion.Example.create;
+
+import java.util.List;
+
+import org.hibernate.LockOptions;
+import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.ConceptPr;
+import com.org.sg.POJO.action.Conceptrelation;
+
+/**
+ * A data access object (DAO) providing persistence and search support for
+ * ConceptPr entities. Transaction control of the save(), update() and delete()
+ * operations can directly support Spring container-managed transactions or they
+ * can be augmented to handle user-managed Spring transactions. Each of these
+ * methods provides additional information for how to configure it for the
+ * desired type of transaction control.
+ * 
+ * @see com.org.sg.POJO.action.ConceptPr
+ * @author MyEclipse Persistence Tools
+ */
+public class ConceptPrDAO extends BaseHibernateDAO {
+	private static final Logger log = LoggerFactory
+			.getLogger(ConceptPrDAO.class);
+	// property constants
+	public static final String REQUIRED_KNOWLEDGE = "requiredKnowledge";
+	public static final String VALUE = "value";
+
+	public void save(ConceptPr transientInstance) {
+		log.debug("saving ConceptPr instance");
+		try {
+			getSession().save(transientInstance);
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			throw re;
+		}
+	}
+
+	public void delete(ConceptPr persistentInstance) {
+		log.debug("deleting ConceptPr instance");
+		try {
+			getSession().delete(persistentInstance);
+			log.debug("delete successful");
+		} catch (RuntimeException re) {
+			log.error("delete failed", re);
+			throw re;
+		}
+	}
+
+	public ConceptPr findById(java.lang.Integer id) {
+		log.debug("getting ConceptPr instance with id: " + id);
+		try {
+			ConceptPr instance = (ConceptPr) getSession().get(
+					"com.org.sg.POJO.action.ConceptPr", id);
+			return instance;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+
+	public List<ConceptPr> findByExample(ConceptPr instance) {
+		log.debug("finding ConceptPr instance by example");
+		try {
+			List<ConceptPr> results = (List<ConceptPr>) getSession()
+					.createCriteria("com.org.sg.POJO.ConceptPr")
+					.add(create(instance)).list();
+			log.debug("find by example successful, result size: "
+					+ results.size());
+			return results;
+		} catch (RuntimeException re) {
+			log.error("find by example failed", re);
+			throw re;
+		}
+	}
+
+	public List findByProperty(String propertyName, Object value) {
+		log.debug("finding ConceptPr instance with property: " + propertyName
+				+ ", value: " + value);
+		try {
+			String queryString = "from ConceptPr as model where model."
+					+ propertyName + "= ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, value);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	public List<ConceptPr> findByRequiredKnowledge(Object requiredKnowledge) {
+		return findByProperty(REQUIRED_KNOWLEDGE, requiredKnowledge);
+	}
+
+	public List<ConceptPr> findByValue(Object value) {
+		return findByProperty(VALUE, value);
+	}
+
+	public List findAll() {
+		log.debug("finding all ConceptPr instances");
+		try {
+			String queryString = "from ConceptPr";
+			Query queryObject = getSession().createQuery(queryString);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+
+	public ConceptPr merge(ConceptPr detachedInstance) {
+		log.debug("merging ConceptPr instance");
+		try {
+			ConceptPr result = (ConceptPr) getSession().merge(detachedInstance);
+			log.debug("merge successful");
+			return result;
+		} catch (RuntimeException re) {
+			log.error("merge failed", re);
+			throw re;
+		}
+	}
+
+	public void attachDirty(ConceptPr instance) {
+		log.debug("attaching dirty ConceptPr instance");
+		try {
+			getSession().saveOrUpdate(instance);
+			log.debug("attach successful");
+		} catch (RuntimeException re) {
+			log.error("attach failed", re);
+			throw re;
+		}
+	}
+
+	public void attachClean(ConceptPr instance) {
+		log.debug("attaching clean ConceptPr instance");
+		try {
+			getSession().buildLockRequest(LockOptions.NONE).lock(instance);
+			log.debug("attach successful");
+		} catch (RuntimeException re) {
+			log.error("attach failed", re);
+			throw re;
+		}
+	}
+	
+	public Concept findConceptOfPedagogicalResource(Integer id) {
+		log.debug("getting ConceptPr instance with id: " + id);
+		try {
+			String queryString = "select model.concept from ConceptPr as model where model.pedagogicalresource.id =:CID";
+			Query query= getSession().createQuery(queryString);
+			query.setInteger("CID", id);
+			
+			List<Concept> list= query.list();
+			return list.size() > 0 ? list.get(0) : null;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public ConceptPr findConceptPrOfPedagogicalResource(Integer id) {
+		log.debug("getting ConceptPr instance with id: " + id);
+		try {
+			String queryString = "from ConceptPr as model where model.pedagogicalresource.id =:CID";
+			Query query= getSession().createQuery(queryString);
+			query.setInteger("CID", id);
+			
+			List<ConceptPr> list= query.list();
+			return list.size() > 0 ? list.get(0) : null;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public List<ConceptPr> findCPRSOfPedagogicalResource(Integer id) {
+		log.debug("getting ConceptPr instance with id: " + id);
+		try {
+			String queryString = "from ConceptPr as model where model.pedagogicalresource.id =:CID";
+			Query query= getSession().createQuery(queryString);
+			query.setInteger("CID", id);
+			
+			List<ConceptPr> list= query.list();
+			return list;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public List<ConceptPr> findResourcesOfConcept(Integer conceptId, Integer typeId) {
+//		log.debug("finding ConceptPr instance with property: " + propertyName
+//				+ ", value: " + value);
+		try {
+			String queryString = "from ConceptPr as model where concept.id =:CID and pedagogicalresource.types.id = :TID";
+			Query query= getSession().createQuery(queryString);
+			query.setInteger("CID", conceptId);
+			query.setInteger("TID", typeId);
+			
+			return query.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+	
+	public void deleteOfPR(Integer id) {
+		try {
+			String queryString = "delete from ConceptPr where  pedagogicalresource.id = :CID";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", id);
+			query.executeUpdate();
+			
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public ConceptPr findSimilarRelation(Integer cId, Integer pId)
+	{
+		
+		String queryString = "from ConceptPr where  concept.id = :FID and pedagogicalresource.id = :TID";
+		Query query = getSession().createQuery(queryString);
+		query.setInteger("FID", cId);
+		query.setInteger("TID", pId);
+		
+		List<ConceptPr> list = query.list();
+		
+		if(list.size() == 0)
+			return null;
+
+		return list.get(0);
+	}
+	
+	public boolean foundSimilarRelation(Integer cId, Integer pId, Integer relationId)
+	{
+		
+		String queryString = "from ConceptPr where  concept.id = :FID and pedagogicalresource.id = :TID and id <> :relId";
+		Query query = getSession().createQuery(queryString);
+		query.setInteger("FID", cId);
+		query.setInteger("TID", pId);
+		query.setInteger("relId", relationId);
+		
+		List<ConceptPr> list = query.list();
+		
+		if(list.size() == 0)
+			return false;
+		
+		if(list.get(0).getId().equals(relationId))
+			return false;
+		
+		return true;
+	}
+}

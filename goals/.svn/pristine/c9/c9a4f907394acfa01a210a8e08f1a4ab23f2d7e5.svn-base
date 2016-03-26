@@ -1,0 +1,148 @@
+package com.org.test;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jasypt.util.password.ConfigurablePasswordEncryptor;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.ConceptDAO;
+import com.org.sg.DAO.ConceptrelationDAO;
+import com.org.sg.DAO.FunctionsDAO;
+import com.org.sg.DAO.RelationDAO;
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.Conceptrelation;
+import com.org.sg.POJO.action.Functions;
+import com.org.sg.POJO.action.Relation;
+
+public class Test {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
+		passwordEncryptor.setAlgorithm("SHA-1");
+		passwordEncryptor.setPlainDigest(true);
+		String encryptedPassword = passwordEncryptor
+				.encryptPassword(Constants.ENCODE_STRING + "user12");
+
+		System.out.println(encryptedPassword);
+		
+		ConceptDAO conceptDAO = new ConceptDAO();
+		List<Concept> conceptList = conceptDAO.findOfProject(35);
+		
+		RelationDAO relationDAO = new RelationDAO();
+		List<Relation> relationList = relationDAO.findAll();
+		
+		FunctionsDAO functionsDAO = new FunctionsDAO();
+		List<Functions> functionsList = functionsDAO.findAll();
+		
+		Gson gson =  new GsonBuilder().setPrettyPrinting().create();
+		Map<String,List<Map<String, Object>>> myMap = new LinkedHashMap<String, List<Map<String,Object>>>();
+	
+		List<Map<String, Object>> metaDataList = new ArrayList<Map<String,Object>>();
+		
+		Map<String, Object> nameMap = new LinkedHashMap<String, Object>();
+		nameMap.put("name", "select");
+		nameMap.put("label", "Select");
+		nameMap.put("datatype", "boolean");
+		nameMap.put("editable", true);
+		metaDataList.add(nameMap);
+		
+	
+		Map<String, Object> conceptNameMap = new LinkedHashMap<String, Object>();
+		conceptNameMap.put("name", "concept");
+		conceptNameMap.put("label", "Concepts");
+		conceptNameMap.put("datatype", "string");
+		conceptNameMap.put("editable", true);
+		
+		Map<String, String> conceptValueMap = new LinkedHashMap<String, String>();
+		for(Concept c : conceptList)
+		{
+			conceptValueMap.put(c.getId().toString(), c.getName());
+		}
+		conceptNameMap.put("values", conceptValueMap);
+		metaDataList.add(conceptNameMap);
+		
+		Map<String, Object> relationNameMap = new LinkedHashMap<String, Object>();
+		relationNameMap.put("name", "relation");
+		relationNameMap.put("label", "Relations");
+		relationNameMap.put("datatype", "string");
+		relationNameMap.put("editable", true);
+		
+		Map<String, String> relationValueMap = new LinkedHashMap<String, String>();
+		for(Relation c : relationList)
+		{
+			relationValueMap.put(c.getId().toString(), c.getName());
+		}
+		relationNameMap.put("values", relationValueMap);
+		metaDataList.add(relationNameMap);
+		
+		Map<String, Object> functionsNameMap = new LinkedHashMap<String, Object>();
+		functionsNameMap.put("name", "functions");
+		functionsNameMap.put("label", "Functions");
+		functionsNameMap.put("datatype", "string");
+		functionsNameMap.put("editable", true);
+		
+		Map<String, String> functionsValueMap = new LinkedHashMap<String, String>();
+		for(Functions c : functionsList)
+		{
+			functionsValueMap.put(c.getId().toString(), c.getFunc());
+		}
+		functionsNameMap.put("values", functionsValueMap);
+		metaDataList.add(functionsNameMap);
+		
+		
+		Map<String, Object> valuesNameMap = new LinkedHashMap<String, Object>();
+		valuesNameMap.put("name", "values");
+		valuesNameMap.put("label", "Values");
+		valuesNameMap.put("datatype", "string");
+		valuesNameMap.put("editable", true);
+		
+		Map<Integer, String> valuesValueMap = new LinkedHashMap<Integer, String>();
+		valuesValueMap.put(10, "10");
+		valuesValueMap.put(20, "20");
+		valuesValueMap.put(30, "30");
+		valuesValueMap.put(40, "40");
+		valuesValueMap.put(50, "50");
+		valuesValueMap.put(60, "60");
+		valuesValueMap.put(70, "70");
+		valuesValueMap.put(80, "80");
+		valuesValueMap.put(90, "90");
+		valuesValueMap.put(100, "100");
+		
+
+		valuesNameMap.put("values", valuesValueMap);
+		metaDataList.add(valuesNameMap);
+		
+		myMap.put("metadata", metaDataList);
+		
+		ConceptrelationDAO conceptrelationDAO = new ConceptrelationDAO();
+		List<Conceptrelation> conceptrelations = conceptrelationDAO.findAllRelationOfConcept(212);
+		
+		List<Map<String, Object>> dataList = new ArrayList<Map<String,Object>>();
+		
+		for(Conceptrelation cr : conceptrelations)
+		{
+			Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+			dataMap.put("id", cr.getId());
+			Map<String, String> dataValueMap = new LinkedHashMap<String, String>();
+			dataValueMap.put("concept", cr.getConceptByConceptTo().getId().toString());
+			dataValueMap.put("relation", cr.getRelation().getId().toString());
+			dataValueMap.put("functions", cr.getFunctions().getId().toString());
+			dataValueMap.put("values", cr.getValue());
+			dataMap.put("values", dataValueMap);
+			dataList.add(dataMap);
+		}
+		myMap.put("data", dataList);
+		
+		System.out.println(gson.toJson(myMap));
+	}
+
+}

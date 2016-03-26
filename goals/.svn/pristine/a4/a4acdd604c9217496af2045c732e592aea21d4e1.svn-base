@@ -1,0 +1,54 @@
+user.name=User Name
+user.password=Password
+name=Name
+email=Email
+organization=Organization
+description=Description
+concept=concept
+pedagogical.resource=Pedagogical Resource
+game.resource=Game Resource
+type=Type
+project=Project
+owner=Owner
+action=Action
+number.of.users=Number of users
+welcome=Welcome
+profile=Profile
+sign.out=Sign Out
+projects=Projects
+learners=Learners
+select=Select
+author=author
+users=Users
+presentations=Presentations
+ped.objectives=Pedagogical Objectives
+add=Add
+scenario.generator=Scenario Generator
+generate=Generate
+generate.game=Generate Game
+textual.representation=Textual Representation
+graphical.representation=Graphical Representation
+concept.relation=Concept Relation
+close=Close
+save.changes=Save changes
+concepts=Concepts
+enter.name=Enter name
+enter.desc=Enter description
+relations=Relations
+properties=Properties
+filter=Filter
+
+#Messages
+project.saved.success=Project saved successfully
+project.delete.success=Project deleted successfully
+delete.confirm.question=This is an irreversible action. Are you sure?
+project.delete.message=Project delete message
+
+#Error Messages
+error.msg.name.required=Please enter a username
+error.msg.name.min.length=Your username must consist of at least 6 characters
+error.msg.password.required=Please enter a password
+error.msg.password.min.length=Your password must be at least 5 characters long
+error.msg.first.name.required=Please enter your firstname
+
+

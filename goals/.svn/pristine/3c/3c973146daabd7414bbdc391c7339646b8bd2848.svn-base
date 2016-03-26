@@ -1,0 +1,61 @@
+<%@taglib uri="/struts-tags" prefix="s"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description"
+	content="[An example of getting started with Cytoscape.js]" />
+<link rel="stylesheet" href="css/cytoscape.js-panzoom.css">
+<link rel="stylesheet" href="css/cytoscape.js-navigator.css">
+<script src="script/jquery-2.1.0.js"></script>
+<script src="script/dagre.js"></script>
+<meta charset=utf-8 />
+<title>Cytoscape.js initialisation</title>
+<script src="script/cytoscape.js"></script>
+<script src="script/cytoscape.js-panzoom.js"></script>
+<script src="script/cytoscape.js-navigator.js"></script>
+<script src="script/cytoscape.js-cxtmenu.js"></script>
+<script src="script/my/ScenarioGenerator.js"></script>
+<style type="text/css">
+body {
+	font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#cy {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+}
+</style>
+
+
+<script type="text/javascript">
+var projectId = 21;
+	$(function() { // on dom ready
+
+		$('#id').click(function() {
+			alert("asdsa");
+		});
+	
+	intializeCyto();
+	addId();
+
+	});
+</script>
+</head>
+<body>
+
+
+	<a href="javascript:addId();">Click Me</a>
+	<div id="cy"></div>
+
+	<div class="cytoscape-navigator">
+		<canvas></canvas>
+		<div class="cytoscape-navigatorView"></div>
+		<div class="cytoscape-navigatorOverlay"></div>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+</script>
+</html>

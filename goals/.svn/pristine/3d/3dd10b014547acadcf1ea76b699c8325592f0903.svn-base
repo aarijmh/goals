@@ -1,0 +1,120 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.List;
+
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.LearnerDAO;
+import com.org.sg.DAO.LearnerprojectDAO;
+import com.org.sg.DAO.ProjectDAO;
+import com.org.sg.DAO.UserDAO;
+import com.org.sg.POJO.action.Learner;
+import com.org.sg.POJO.action.Learnerproject;
+
+public class LearnerActionHandler extends AbstractActionHandler {
+
+	Learner learner;
+
+	public LearnerActionHandler(Learner learner) {
+		super();
+		this.learner = learner;
+	}
+
+	@Override
+	public void processing() {
+
+		if (learner.getAction().equalsIgnoreCase(Constants.SHOW))
+			show();
+		else if (learner.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT))
+			showAddEdit();
+		else if (learner.getAction().equalsIgnoreCase(Constants.ADD_EDIT))
+			addEdit();
+		else if (learner.getAction().equalsIgnoreCase(Constants.DELETE))
+			delete();
+	}
+
+	public void show() {
+		Integer userId = (Integer) learner.getSession().get(Constants.LOGIN_ID);
+		LearnerDAO learnerDAO = new LearnerDAO();
+		learner.setLearnerList(learnerDAO.findLearnersOfUser(userId));
+	}
+
+	public void showAddEdit() {
+
+		ProjectDAO projectDAO = new ProjectDAO();
+		
+		
+		if (learner.getId() != null && !learner.getId().equals(0)) {
+			LearnerDAO learnerDAO = new LearnerDAO();
+			LearnerprojectDAO learnerprojectDAO = new LearnerprojectDAO();
+			
+			Learner l = learnerDAO.findById(learner.getId());
+			learner.setName(l.getName().replaceAll("'", "\'"));
+			learner.setDescription(l.getDescription().replaceAll("'", "\'"));
+			learner.setDatebirth(l.getDatebirth());
+			learner.setEmail(l.getEmail());
+			learner.setAdresse(l.getAdresse());
+			learner.setOrganization(l.getOrganization());
+			learner.setId(l.getId());
+			
+			List<Integer> list = learnerprojectDAO.getOfLearnerIds(l.getId());
+			Integer [] a = new Integer[list.size()];
+			int count = 0;
+			for(Integer lp : list)
+			{
+				a[count++] = lp;
+			}
+			
+			learner.setProjectIds(a);
+		}
+
+		learner.setProjectList(projectDAO.findProjectsOfUser((Integer) learner
+				.getSession().get(Constants.LOGIN_ID)));
+	}
+
+	public void addEdit() {
+		LearnerDAO learnerDAO = new LearnerDAO();
+		LearnerprojectDAO learnerprojectDAO = new LearnerprojectDAO();
+		ProjectDAO projectDAO = new ProjectDAO();
+
+		Learner l;
+		if (learner.getId() != null && !learner.getId().equals(0)) {
+			l = learnerDAO.findById(learner.getId());
+			learner.setNewObject(false);
+			learnerprojectDAO.deleteOfLearner(learner.getId());
+		} else {
+			UserDAO userDAO = new UserDAO();
+			l = new Learner();
+			l.setUser(userDAO.findById((Integer) learner.getSession().get(
+					Constants.LOGIN_ID)));
+		}
+
+
+		l.setName(learner.getName());
+		l.setDescription(learner.getDescription());
+		l.setDatebirth(learner.getDatebirth());
+		l.setEmail(learner.getEmail());
+		l.setAdresse(learner.getAdresse());
+		l.setOrganization(learner.getOrganization());
+
+		learnerDAO.save(l);
+		
+		
+		for(Integer lpId : learner.getProjectIds())
+		{
+			Learnerproject learnerproject = new Learnerproject();
+			learnerproject.setLearner(l);
+			learnerproject.setProject(projectDAO.findById(lpId));
+			learnerprojectDAO.save(learnerproject);
+		}
+
+		learner.setId(l.getId());
+	}
+
+	public void delete() {
+		LearnerDAO learnerDAO = new LearnerDAO();
+		if (learner.getId() != null && !learner.getId().equals(0)) {
+			Learner p = learnerDAO.findById(learner.getId());
+			learnerDAO.delete(p);
+		}
+	}
+}

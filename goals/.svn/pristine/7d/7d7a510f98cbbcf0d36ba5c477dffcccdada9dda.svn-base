@@ -1,0 +1,121 @@
+package com.org.sg.POJO.action;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+/**
+ * Types entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "types", catalog = "scenariogenerator")
+public class Types implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private String name;
+	private String description;
+	private Integer type;
+	private Set<Pedagogicalresource> pedagogicalresources = new HashSet<Pedagogicalresource>(
+			0);
+	private Set<PresentationPr> presentationPrs = new HashSet<PresentationPr>(0);
+	private Set<Gameresource> gameresources = new HashSet<Gameresource>(0);
+
+	// Constructors
+
+	/** default constructor */
+	public Types() {
+	}
+
+	/** minimal constructor */
+	public Types(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Types(Integer id, String name, String description, Integer type,
+			Set<Pedagogicalresource> pedagogicalresources,
+			Set<PresentationPr> presentationPrs, Set<Gameresource> gameresources) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.type = type;
+		this.pedagogicalresources = pedagogicalresources;
+		this.presentationPrs = presentationPrs;
+		this.gameresources = gameresources;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "description", length = 65535)
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Column(name = "type")
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "types")
+	public Set<Pedagogicalresource> getPedagogicalresources() {
+		return this.pedagogicalresources;
+	}
+
+	public void setPedagogicalresources(
+			Set<Pedagogicalresource> pedagogicalresources) {
+		this.pedagogicalresources = pedagogicalresources;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "types")
+	public Set<PresentationPr> getPresentationPrs() {
+		return this.presentationPrs;
+	}
+
+	public void setPresentationPrs(Set<PresentationPr> presentationPrs) {
+		this.presentationPrs = presentationPrs;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "types")
+	public Set<Gameresource> getGameresources() {
+		return this.gameresources;
+	}
+
+	public void setGameresources(Set<Gameresource> gameresources) {
+		this.gameresources = gameresources;
+	}
+
+}

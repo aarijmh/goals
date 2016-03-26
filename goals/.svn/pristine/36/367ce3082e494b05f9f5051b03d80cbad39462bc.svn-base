@@ -1,0 +1,254 @@
+package com.org.sg.DAO;
+
+import static org.hibernate.criterion.Example.create;
+
+import java.util.List;
+
+import org.hibernate.LockOptions;
+import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.org.sg.POJO.action.Conceptrelation;
+
+/**
+ * A data access object (DAO) providing persistence and search support for
+ * Conceptrelation entities. Transaction control of the save(), update() and
+ * delete() operations can directly support Spring container-managed
+ * transactions or they can be augmented to handle user-managed Spring
+ * transactions. Each of these methods provides additional information for how
+ * to configure it for the desired type of transaction control.
+ * 
+ * @see com.org.sg.POJO.action.Conceptrelation
+ * @author MyEclipse Persistence Tools
+ */
+public class ConceptrelationDAO extends BaseHibernateDAO {
+	private static final Logger log = LoggerFactory
+			.getLogger(ConceptrelationDAO.class);
+	// property constants
+	public static final String VALUE = "value";
+
+	public void save(Conceptrelation transientInstance) {
+		log.debug("saving Conceptrelation instance");
+		try {
+			getSession().save(transientInstance);
+			log.debug("save successful");
+		} catch (RuntimeException re) {
+			log.error("save failed", re);
+			throw re;
+		}
+	}
+
+	public void delete(Conceptrelation persistentInstance) {
+		log.debug("deleting Conceptrelation instance");
+		try {
+			getSession().delete(persistentInstance);
+			log.debug("delete successful");
+		} catch (RuntimeException re) {
+			log.error("delete failed", re);
+			throw re;
+		}
+	}
+
+	public Conceptrelation findById(java.lang.Integer id) {
+		log.debug("getting Conceptrelation instance with id: " + id);
+		try {
+			Conceptrelation instance = (Conceptrelation) getSession().get(
+					"com.org.sg.POJO.action.Conceptrelation", id);
+			return instance;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+
+	public List<Conceptrelation> findByExample(Conceptrelation instance) {
+		log.debug("finding Conceptrelation instance by example");
+		try {
+			List<Conceptrelation> results = (List<Conceptrelation>) getSession()
+					.createCriteria("com.org.sg.POJO.Conceptrelation")
+					.add(create(instance)).list();
+			log.debug("find by example successful, result size: "
+					+ results.size());
+			return results;
+		} catch (RuntimeException re) {
+			log.error("find by example failed", re);
+			throw re;
+		}
+	}
+
+	public List findByProperty(String propertyName, Object value) {
+		log.debug("finding Conceptrelation instance with property: "
+				+ propertyName + ", value: " + value);
+		try {
+			String queryString = "from Conceptrelation as model where model."
+					+ propertyName + "= ?";
+			Query queryObject = getSession().createQuery(queryString);
+			queryObject.setParameter(0, value);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find by property name failed", re);
+			throw re;
+		}
+	}
+
+	public List<Conceptrelation> findByValue(Object value) {
+		return findByProperty(VALUE, value);
+	}
+
+	public List findAll() {
+		log.debug("finding all Conceptrelation instances");
+		try {
+			String queryString = "from Conceptrelation";
+			Query queryObject = getSession().createQuery(queryString);
+			return queryObject.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+
+	public Conceptrelation merge(Conceptrelation detachedInstance) {
+		log.debug("merging Conceptrelation instance");
+		try {
+			Conceptrelation result = (Conceptrelation) getSession().merge(
+					detachedInstance);
+			log.debug("merge successful");
+			return result;
+		} catch (RuntimeException re) {
+			log.error("merge failed", re);
+			throw re;
+		}
+	}
+
+	public void attachDirty(Conceptrelation instance) {
+		log.debug("attaching dirty Conceptrelation instance");
+		try {
+			getSession().saveOrUpdate(instance);
+			log.debug("attach successful");
+		} catch (RuntimeException re) {
+			log.error("attach failed", re);
+			throw re;
+		}
+	}
+
+	public void attachClean(Conceptrelation instance) {
+		log.debug("attaching clean Conceptrelation instance");
+		try {
+			getSession().buildLockRequest(LockOptions.NONE).lock(instance);
+			log.debug("attach successful");
+		} catch (RuntimeException re) {
+			log.error("attach failed", re);
+			throw re;
+		}
+	}
+	
+	public List<Conceptrelation> findRequiredRelationsOfConcept(Integer conceptId) {
+		log.debug("finding all Conceptrelation instances");
+		try {
+			String queryString = "from Conceptrelation where  conceptByConceptFrom.id = :CID and relation.id = 2";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", conceptId);
+			
+			return query.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	public List<Conceptrelation> findRelationOfConcept(Integer conceptId, Integer relationId) {
+		log.debug("finding all Conceptrelation instances");
+		try {
+			String queryString = "from Conceptrelation where  conceptByConceptFrom.id = :CID and relation.id = :RID";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", conceptId);
+			query.setInteger("RID", relationId);
+			
+			return query.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	public List<Conceptrelation> findToRelationOfConcept(Integer conceptId, Integer relationId) {
+		log.debug("finding all Conceptrelation instances");
+		try {
+			String queryString = "from Conceptrelation where  conceptByConceptTo.id = :CID and relation.id = :RID";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", conceptId);
+			query.setInteger("RID", relationId);
+			
+			return query.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	public List<Conceptrelation> findAllRelationOfConcept(Integer conceptId) {
+		log.debug("finding all Conceptrelation instances");
+		try {
+			String queryString = "from Conceptrelation where  conceptByConceptFrom.id = :CID";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", conceptId);
+			
+			return query.list();
+		} catch (RuntimeException re) {
+			log.error("find all failed", re);
+			throw re;
+		}
+	}
+	
+	public void deleteOfConcept(Integer id) {
+		log.debug("getting Conceptrelation instance with id: " + id);
+		try {
+			String queryString = "delete from Conceptrelation where  conceptByConceptFrom.id = :CID";
+			Query query = getSession().createQuery(queryString);
+			query.setInteger("CID", id);
+			query.executeUpdate();
+			
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
+	
+	public Conceptrelation findSimilarRelation(Integer conceptFromId, Integer conceptToId)
+	{
+		
+		String queryString = "from Conceptrelation where  conceptByConceptFrom.id = :FID and conceptByConceptTo.id = :TID";
+		Query query = getSession().createQuery(queryString);
+		query.setInteger("FID", conceptFromId);
+		query.setInteger("TID", conceptToId);
+		
+		List<Conceptrelation> list = query.list();
+		
+		if(list.size() == 0)
+			return null;
+		
+		
+		return list.get(0);
+	}
+	
+	public boolean foundSimilarRelation(Integer conceptFromId, Integer conceptToId, Integer relationId)
+	{
+		
+		String queryString = "from Conceptrelation where  conceptByConceptFrom.id = :FID and conceptByConceptTo.id = :TID and id <> :relId";
+		Query query = getSession().createQuery(queryString);
+		query.setInteger("FID", conceptFromId);
+		query.setInteger("TID", conceptToId);
+		query.setInteger("relId", relationId);
+		
+		List<Conceptrelation> list = query.list();
+		
+		if(list.size() == 0)
+			return false;
+		
+		if(list.get(0).getId().equals(relationId))
+			return false;
+		
+		return true;
+	}
+}

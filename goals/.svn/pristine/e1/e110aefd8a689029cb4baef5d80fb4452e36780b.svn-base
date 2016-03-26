@@ -1,0 +1,95 @@
+package com.org.sg.POJO.action;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+/**
+ * GrProperty entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "gr_property", catalog = "scenariogenerator")
+public class GrProperty implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private Gameresource gameresource;
+	private Boolean parameter;
+	private String name;
+	private String value;
+
+	// Constructors
+
+	/** default constructor */
+	public GrProperty() {
+	}
+
+	/** minimal constructor */
+	public GrProperty(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public GrProperty(Integer id, Gameresource gameresource, Boolean parameter,
+			String name, String value) {
+		this.id = id;
+		this.gameresource = gameresource;
+		this.parameter = parameter;
+		this.name = name;
+		this.value = value;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "gameResource")
+	public Gameresource getGameresource() {
+		return this.gameresource;
+	}
+
+	public void setGameresource(Gameresource gameresource) {
+		this.gameresource = gameresource;
+	}
+
+	@Column(name = "parameter")
+	public Boolean getParameter() {
+		return this.parameter;
+	}
+
+	public void setParameter(Boolean parameter) {
+		this.parameter = parameter;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "value", length = 65535)
+	public String getValue() {
+		return this.value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+}

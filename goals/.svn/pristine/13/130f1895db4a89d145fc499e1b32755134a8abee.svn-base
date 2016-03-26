@@ -1,0 +1,119 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.List;
+
+import org.jasypt.util.password.ConfigurablePasswordEncryptor;
+
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.LearnerDAO;
+import com.org.sg.DAO.LearnerprojectDAO;
+import com.org.sg.DAO.ProjectDAO;
+import com.org.sg.DAO.UserDAO;
+import com.org.sg.POJO.action.Learner;
+import com.org.sg.POJO.action.User;
+
+public class UserActionHandler extends AbstractActionHandler {
+
+	private User user;
+
+	public UserActionHandler(User user) {
+		super();
+		this.user = user;
+	}
+
+	@Override
+	public void processing() {
+		if (user.getAction().equalsIgnoreCase("login"))
+			checkLogin();
+		else if (Constants.LOGOUT.equalsIgnoreCase(user.getAction()))
+			logout();
+		else if (Constants.SHOW.equalsIgnoreCase(user.getAction()))
+			show();
+		else if (Constants.SHOW_ADD_EDIT.equalsIgnoreCase(user.getAction()))
+			showAddEdit();	
+	}
+	
+	public void logout()
+	{
+		
+	}
+	
+	public void show()
+	{
+		UserDAO userDAO = new UserDAO();
+		this.user.setUserList(userDAO.findUsers((Integer) user.getSession().get(Constants.LOGIN_ID)));
+				
+	}
+	
+	public void showAddEdit() {
+
+		ProjectDAO projectDAO = new ProjectDAO();
+
+		if (user.getId() != null && !user.getId().equals(0)) {
+			UserDAO userDAO = new UserDAO();
+
+			User l = userDAO.findById(user.getId());
+			user.setName(l.getName().replaceAll("'", "\'"));
+			user.setEmail(l.getEmail());
+			user.setOrganization(l.getOrganization());
+			user.setLogin(l.getLogin());
+			user.setPassword("");
+			user.setId(l.getId());
+
+/*			List<Integer> list = projectDAO.getOfLearnerIds(l.getId());
+			Integer[] a = new Integer[list.size()];
+			int count = 0;
+			for (Integer lp : list) {
+				a[count++] = lp;
+			}
+
+			user.setProjectIds(a);*/
+		}
+
+		user.setProjectList(projectDAO.findProjectsOfUser((Integer) user
+				.getSession().get(Constants.LOGIN_ID)));
+	}
+
+	public void checkLogin() {
+		if (user.getLogin().trim().equals("")
+				|| user.getPassword().trim().equals("")) {
+			user.getErrors().add(Constants.EMPTY_LOGIN_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		UserDAO userDAO = new UserDAO();
+		User tempUser = userDAO.findByLogin(user.getLogin());
+
+		if (tempUser == null) {
+			user.getErrors().add(Constants.INVALID_USERNAME_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
+		passwordEncryptor.setAlgorithm("SHA-1");
+		passwordEncryptor.setPlainDigest(true);
+
+		if (!passwordEncryptor.checkPassword(Constants.ENCODE_STRING + user.getPassword(), tempUser.getPassword())) {
+			user.getErrors().add(Constants.INVALID_USERNAME_PASSWORD_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		user.getSession().put(Constants.LOGIN, tempUser.getLogin());
+		user.getSession().put(Constants.LOGIN_ID, tempUser.getId());
+		user.getSession().put(Constants.LOGIN_NAME, tempUser.getName());
+		user.getSession().put(Constants.LOGIN_TYPE, tempUser.getType());
+		user.getSession().put(Constants.LOGIN_LEARNER, tempUser.getLearner());
+
+		if(tempUser.getType().equals(Constants.ADMIN_TYPE))			
+			user.setAction(Constants.LOGGED_ADMIN);
+		else if(tempUser.getType().equals(Constants.TEACHER_TYPE))			
+			user.setAction(Constants.LOGGED);
+		else if(tempUser.getType().equals(Constants.STUDENT_TYPE))			
+			user.setAction(Constants.LOGGED_STUDENT);
+		
+
+	}
+}

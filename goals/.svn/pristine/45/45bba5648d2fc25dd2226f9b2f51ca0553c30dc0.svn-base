@@ -1,0 +1,291 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.ConceptDAO;
+import com.org.sg.DAO.ConceptrelationDAO;
+import com.org.sg.DAO.FunctionsDAO;
+import com.org.sg.DAO.ProjectDAO;
+import com.org.sg.DAO.RelationDAO;
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.ConceptPr;
+import com.org.sg.POJO.action.Conceptrelation;
+import com.org.sg.POJO.action.Functions;
+import com.org.sg.POJO.action.Gameresource;
+import com.org.sg.POJO.action.PedagogicalGame;
+import com.org.sg.POJO.action.Pedagogicalresource;
+import com.org.sg.POJO.action.Project;
+import com.org.sg.POJO.action.Relation;
+import com.org.sg.UtilityClasses.ObjectGraph;
+
+public class ConceptActionHandler extends AbstractActionHandler {
+
+	Concept concept;
+
+	public ConceptActionHandler(Concept con) {
+		this.concept = con;
+	}
+
+	@Override
+	public void processing() {
+
+		if (concept.getAction().equalsIgnoreCase(Constants.LOGGED))
+			show();
+		else if (concept.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT))
+			showAddEdit();
+		else if (concept.getAction().equalsIgnoreCase(Constants.ADD_EDIT))
+			addEdit();
+		else if (concept.getAction().equalsIgnoreCase(Constants.DELETE))
+			delete();
+		else if (concept.getAction().equalsIgnoreCase(
+				Constants.SHOW_ADD_EDIT_CONCEPT))
+			showAddEditConcept();
+		else if (concept.getAction().equalsIgnoreCase(Constants.SHOW_JSON))
+			showJson();
+	}
+
+	public void show() {
+
+	}
+
+	public void showAddEdit() {
+		ConceptDAO conceptDAO = new ConceptDAO();
+
+		if (concept.getId() != null && !concept.getId().equals(0)) {
+			Concept p = conceptDAO.findById(concept.getId());
+			concept.setName(p.getName().replaceAll("'", "\'"));
+			concept.setDescription(p.getDescription().replaceAll("'", "\'"));
+			concept.setId(p.getId());
+		}
+
+		concept.setConceptList(conceptDAO.findOfProject(concept.getProjectId()));
+	}
+
+	public void showJson() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Map<String, List<Map<String, Object>>> myMap = new LinkedHashMap<String, List<Map<String, Object>>>();
+
+		List<Map<String, Object>> metaDataList = new ArrayList<Map<String, Object>>();
+
+		ConceptDAO conceptDAO = new ConceptDAO();
+		List<Concept> conceptList = conceptDAO.findOfProject(concept
+				.getProjectId());
+
+		RelationDAO relationDAO = new RelationDAO();
+		List<Relation> relationList = relationDAO.findAll();
+
+		FunctionsDAO functionsDAO = new FunctionsDAO();
+		List<Functions> functionsList = functionsDAO.findAll();
+
+		Map<String, Object> nameMap = new LinkedHashMap<String, Object>();
+		nameMap.put("name", "select");
+		nameMap.put("label", "Select");
+		nameMap.put("datatype", "html");
+		nameMap.put("editable", false);
+		metaDataList.add(nameMap);
+
+		Map<String, Object> conceptNameMap = new LinkedHashMap<String, Object>();
+		conceptNameMap.put("name", "concept");
+		conceptNameMap.put("label", "Concepts");
+		conceptNameMap.put("datatype", "string");
+		conceptNameMap.put("editable", true);
+
+		Map<String, String> conceptValueMap = new LinkedHashMap<String, String>();
+		for (Concept c : conceptList) {
+			conceptValueMap.put(c.getId().toString(), c.getName());
+		}
+		conceptNameMap.put("values", conceptValueMap);
+		metaDataList.add(conceptNameMap);
+
+		Map<String, Object> relationNameMap = new LinkedHashMap<String, Object>();
+		relationNameMap.put("name", "relation");
+		relationNameMap.put("label", "Relations");
+		relationNameMap.put("datatype", "string");
+		relationNameMap.put("editable", true);
+
+		Map<String, String> relationValueMap = new LinkedHashMap<String, String>();
+		for (Relation c : relationList) {
+			relationValueMap.put(c.getId().toString(), c.getName());
+		}
+		relationNameMap.put("values", relationValueMap);
+		metaDataList.add(relationNameMap);
+
+		Map<String, Object> functionsNameMap = new LinkedHashMap<String, Object>();
+		functionsNameMap.put("name", "functions");
+		functionsNameMap.put("label", "Functions");
+		functionsNameMap.put("datatype", "string");
+		functionsNameMap.put("editable", true);
+
+		Map<String, String> functionsValueMap = new LinkedHashMap<String, String>();
+		for (Functions c : functionsList) {
+			functionsValueMap.put(c.getId().toString(), c.getFunc());
+		}
+		functionsNameMap.put("values", functionsValueMap);
+		metaDataList.add(functionsNameMap);
+
+		Map<String, Object> valuesNameMap = new LinkedHashMap<String, Object>();
+		valuesNameMap.put("name", "values");
+		valuesNameMap.put("label", "Values");
+		valuesNameMap.put("datatype", "string");
+		valuesNameMap.put("editable", true);
+
+		Map<Integer, String> valuesValueMap = new LinkedHashMap<Integer, String>();
+		valuesValueMap.put(10, "10");
+		valuesValueMap.put(20, "20");
+		valuesValueMap.put(30, "30");
+		valuesValueMap.put(40, "40");
+		valuesValueMap.put(50, "50");
+		valuesValueMap.put(60, "60");
+		valuesValueMap.put(70, "70");
+		valuesValueMap.put(80, "80");
+		valuesValueMap.put(90, "90");
+		valuesValueMap.put(100, "100");
+
+		valuesNameMap.put("values", valuesValueMap);
+		metaDataList.add(valuesNameMap);
+		
+		Map<String, Object> actionMap = new LinkedHashMap<String, Object>();
+		actionMap.put("name", "action");
+		actionMap.put("label", "Action");
+		actionMap.put("datatype", "html");
+		actionMap.put("editable", false);
+		metaDataList.add(actionMap);
+
+		myMap.put("metadata", metaDataList);
+
+		if (this.concept.getId() != null && !this.concept.getId().equals(0)) {
+			ConceptrelationDAO conceptrelationDAO = new ConceptrelationDAO();
+			List<Conceptrelation> conceptrelations = conceptrelationDAO
+					.findAllRelationOfConcept(212);
+
+			List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+
+			for (Conceptrelation cr : conceptrelations) {
+				Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+				dataMap.put("id", cr.getId());
+				Map<String, String> dataValueMap = new LinkedHashMap<String, String>();
+				dataValueMap.put("select", "<input type=\"checkbox\" name=\"conceptSelect\" value=\""+cr.getId().toString()+"\">");
+				dataValueMap.put("concept", cr.getConceptByConceptTo().getId()
+						.toString());
+				dataValueMap.put("relation", cr.getRelation().getId()
+						.toString());
+				dataValueMap.put("functions", cr.getFunctions().getId()
+						.toString());
+				dataValueMap.put("values", cr.getValue());
+				dataValueMap.put("action", "delete");
+				dataMap.put("values", dataValueMap);
+				dataList.add(dataMap);
+			}
+			myMap.put("data", dataList);
+		}
+		
+		concept.setJson(gson.toJson(myMap));
+	}
+
+	public void addEdit() {
+
+	}
+
+	public void delete() {
+
+	}
+
+	public void showAddEditConcept() {
+		ProjectDAO projectDAO = new ProjectDAO();
+		Project project = projectDAO.findById(8);
+
+		List<ObjectGraph> graphs = new ArrayList<ObjectGraph>();
+		List<Concept> cList = new ArrayList<Concept>();
+		cList.addAll(project.getConcepts());
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		for (Concept c : cList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(c.getId());
+			og.setType(1);
+			og.setName(c.getName());
+			og.setDescription(c.getDescription());
+			graphs.add(og);
+		}
+
+		for (Concept c : cList) {
+			for (Conceptrelation cr : c.getConceptrelationsForConceptFrom()) {
+				ObjectGraph og = new ObjectGraph();
+				og.setId(cr.getId());
+				og.setChild(cr.getConceptByConceptTo().getId());
+				og.setChildName(cr.getConceptByConceptTo().getName());
+				og.setType(4);
+				og.setName(cr.toString());
+				og.setParent(c.getId());
+				og.setParentName(c.getName());
+
+				og.setRelationType(cr.getRelation().getId());
+				graphs.add(og);
+
+			}
+		}
+
+		List<Pedagogicalresource> pedList = new ArrayList<Pedagogicalresource>(
+				project.getPedagogicalresources());
+
+		for (Pedagogicalresource p : pedList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(p.getId());
+			og.setType(2);
+			og.setName(p.getName());
+			og.setDescription(p.getDescription());
+			graphs.add(og);
+
+			for (ConceptPr cpr : p.getConceptPrs()) {
+				ObjectGraph ogr = new ObjectGraph();
+				ogr.setId(cpr.getId());
+				ogr.setChild(cpr.getPedagogicalresource().getId());
+				ogr.setChildName(cpr.getPedagogicalresource().getName());
+				ogr.setType(5);
+				ogr.setName(cpr.toString());
+				ogr.setParent(cpr.getConcept().getId());
+				ogr.setParentName(cpr.getConcept().getName());
+
+				graphs.add(ogr);
+			}
+		}
+
+		List<Gameresource> gaList = new ArrayList<Gameresource>(
+				project.getGameresources());
+
+		for (Gameresource gr : gaList) {
+			ObjectGraph og = new ObjectGraph();
+			og.setId(gr.getId());
+			og.setType(3);
+			og.setName(gr.getName());
+			og.setDescription(gr.getValue());
+			graphs.add(og);
+
+			for (PedagogicalGame cpr : gr.getPedagogicalGames()) {
+				ObjectGraph ogr = new ObjectGraph();
+				ogr.setId(cpr.getId());
+				ogr.setChild(cpr.getGameresource().getId());
+				ogr.setChildName(cpr.getGameresource().getName());
+				ogr.setType(6);
+				ogr.setName(cpr.toString());
+				ogr.setParent(cpr.getPedagogicalresource().getId());
+				ogr.setParentName(cpr.getPedagogicalresource().getName());
+
+				graphs.add(ogr);
+			}
+		}
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\"data\":").append(gson.toJson(graphs)).append("}");
+		// concept.setJsonObject(builder.toString());
+		concept.setJsonObject(gson.toJson(graphs));
+		// System.out.println(gson.toJson(graphs));
+	}
+}

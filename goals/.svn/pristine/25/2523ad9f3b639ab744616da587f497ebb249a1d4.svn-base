@@ -1,0 +1,275 @@
+<%@taglib uri="/struts-tags" prefix="s"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description"
+	content="[An example of getting started with Cytoscape.js]" />
+<script src="script/jquery-2.1.0.js"></script>
+<meta charset=utf-8 />
+<title>Cytoscape.js initialisation</title>
+<script src="script/cytoscape.js"></script>
+<style type="text/css">
+body {
+	font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#cy {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+}
+</style>
+
+<script type="text/javascript">
+	$(function() { // on dom ready
+
+		$('#id').click(function() {
+			alert("asdsa");
+		});
+
+		$('#cy')
+				.cytoscape(
+						{
+							style : cytoscape
+									.stylesheet()
+									.selector('node')
+									.css(
+											{
+												'shape' : 'data(faveShape)',
+												'width' : 'mapData(weight, 40, 80, 20, 60)',
+												'content' : 'data(name)',
+												'text-valign' : 'center',
+												'text-outline-width' : 2,
+												'text-outline-color' : 'data(faveColor)',
+												'background-color' : 'data(faveColor)',
+												'color' : '#fff'
+											})
+									.selector(':selected')
+									.css({
+										'border-width' : 3,
+										'border-color' : '#333'
+									})
+
+									.selector('$node > node')
+									.css({
+										'padding-top' : '20px',
+										'padding-left' : '10px',
+										'padding-bottom' : '10px',
+										'padding-right' : '10px',
+										'text-valign' : 'top',
+										'text-halign' : 'center'
+									})
+
+									.selector('edge')
+									.css(
+											{
+												'opacity' : 0.666,
+												'width' : 'mapData(strength, 70, 100, 2, 6)',
+												'target-arrow-shape' : 'triangle',
+												'source-arrow-shape' : 'circle',
+												'line-color' : 'data(faveColor)',
+												'source-arrow-color' : 'data(faveColor)',
+												'target-arrow-color' : 'data(faveColor)'
+											}).selector('edge.questionable')
+									.css({
+										'line-style' : 'dotted',
+										'target-arrow-shape' : 'diamond'
+									}).selector('.faded').css({
+										'opacity' : 0.25,
+										'text-opacity' : 0
+									}),
+
+							layout : {
+								name : 'breadthfirst',
+								directed : true,
+								padding : 10
+							},
+							elements : {
+								nodes : [ {
+									data : {
+										id : 'a',
+										type : 0
+									}
+								}, {
+									data : {
+										id : 'b',
+										type : 0
+									}
+								} ]
+
+							},
+
+							ready : function() {
+								window.cy = this;
+
+								var str = <s:property value="jsonObject" escapeHtml="false"/>;
+								$.each(str, function() {
+
+									var id = "";
+									var source = "";
+									var target = "";
+									var shape = "";
+									var color = "";
+									var parent = "";
+									switch (this.type) {
+									case 1:
+										id = "con_" + this.id;
+										color = '#EDA1ED';
+										shape = 'ellipse';
+										parent = 'a';
+										break;
+									case 2:
+										id = "pr_" + this.id;
+										color = '#86B342';
+										shape = 'octagon';
+										parent = 'b';
+										break;
+									case 3:
+										id = "gr_" + this.id;
+										color = '#F5A45D';
+										shape = 'rectangle';
+										break;
+									case 4:
+										id = "ccn_" + this.id;
+										source = "con_" + this.parent;
+										target = "con_" + this.child;
+										break;
+									case 5:
+										id = "cpr_" + this.id;
+										source = "con_" + this.parent;
+										target = "pr_" + this.child;
+										break;
+									case 6:
+										id = "pgr_" + this.id;
+										source = "pr_" + this.parent;
+										target = "gr_" + this.child;
+										break;
+									}
+									if (this.type == 1 || this.type == 2
+											|| this.type == 3) {
+										cy.add({
+											group : "nodes",
+											data : {
+												id : id,
+												name : this.name,
+												faveColor : color,
+												faveShape : shape,
+												parent : parent,
+												type : this.type
+											},
+											position : {
+												x : 200,
+												y : 200
+											}
+										});
+									} else if (this.type == 4 || this.type == 5
+											|| this.type == 6) {
+										cy.add({
+											group : "edges",
+											data : {
+												id : id,
+												name : this.name,
+												source : source,
+												target : target,
+												type : this.type
+											}
+										});
+									}
+
+								});
+								// giddy up...
+
+								var options = {
+									name : 'breadthfirst',
+
+									fit : false, // whether to fit the viewport to the graph
+									ready : undefined, // callback on layoutready
+									stop : undefined, // callback on layoutstop
+									directed : false, // whether the tree is directed downwards (or edges can point in any direction if false)
+									//padding : 30, // padding on fit
+									circle : false, // put depths in concentric circles if true, put depths top down if false
+									roots : undefined, // the roots of the trees
+									maximalAdjustments : 0
+								// how many times to try to position the nodes in a maximal way (i.e. no backtracking)
+								};
+
+								cy.elements().unselectify();
+
+								cy.on('tap', 'node', function(e) {
+									var node = e.cyTarget;
+									var neighborhood = node.neighborhood().add(
+											node);
+
+									//	cy.elements().addClass('faded');
+									//	neighborhood.removeClass('faded');
+									neighborhood.show();	
+									cy.layout({ name: 'breadthfirst' });
+									cy.fit(':visible');	
+																
+								});
+
+								cy.on('tap', function(e) {
+									if (e.cyTarget === cy) {
+										cy.elements().removeClass('faded');
+									}
+								});
+							}
+						});
+	});
+</script>
+</head>
+<body>
+
+
+	<a href="javascript:add();">Click Me</a>
+	<div id="cy"></div>
+	asdasd+a asd sa d sads
+
+
+	<div style="background-color: red">
+		<input type="button" value="addNode" onclick="add();" id="add">
+	</div>
+
+
+</body>
+
+<script type="text/javascript">
+	function add() {
+
+		var eles = cy.elements().nodes("[[indegree != 0]]");
+		//alert(eles.nodes("[[indegree  0]]").length);
+		for ( var i = 0; i < eles.length; i++) {
+			var ele = eles[i];
+			ele.hide();
+		}
+
+		/* 		$.each(cy.elements(), function() {
+		 if (this.isNode()) {
+		 //alert(this.hide());
+		 if (this.data('type') == 2 || this.data('type') == 3) {
+		 this.hide();
+		 }
+		 }
+		 }); */
+		var options = {
+			name : 'breadthfirst',
+
+			fit : false, // whether to fit the viewport to the graph
+			ready : undefined, // callback on layoutready
+			stop : undefined, // callback on layoutstop
+			directed : false, // whether the tree is directed downwards (or edges can point in any direction if false)
+			//padding : 30, // padding on fit
+			circle : false, // put depths in concentric circles if true, put depths top down if false
+			roots : undefined, // the roots of the trees
+			maximalAdjustments : 0
+		// how many times to try to position the nodes in a maximal way (i.e. no backtracking)
+		};
+
+		//cy.layout(options);		
+		cy.layout(options);
+		cy.fit("[[indegree = 0]]");
+		cy.forceRender();
+
+	}
+</script>
+</html>

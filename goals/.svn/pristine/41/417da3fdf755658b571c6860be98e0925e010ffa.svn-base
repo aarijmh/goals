@@ -1,0 +1,253 @@
+package com.org.sg.POJO.action;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.ResultPath;
+import org.apache.struts2.convention.annotation.Results;
+
+import com.opensymphony.xwork2.Action;
+import com.org.buisnesslogic.ActionHandlers.AbstractActionHandler;
+import com.org.buisnesslogic.ActionHandlers.GameResourceActionHandler;
+import com.org.coursegenrator.utilities.Constants;
+
+/**
+ * Gameresource entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "gameresource", catalog = "scenariogenerator")
+@ResultPath(value = "/")
+@Results({ 
+	    @Result(name = Constants.SHOW_ADD_EDIT, location = "showAddEditGR.jsp"),
+	    @Result(name = Constants.ADD_EDIT, location = "jsonData.jsp"),
+	    @Result(name = Constants.SHOW_JSON, location = "jsonData.jsp"),
+	    @Result(name = Constants.SHOW_PROPERTIES, location = "jsonData.jsp")})
+public class Gameresource extends AbstractPOJO implements java.io.Serializable, Action  {
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6999858520758597545L;
+	private Integer id;
+	private Types types;
+	private Project project;
+	private String name;
+	private String value;
+	private Set<LearnerTraces> learnerTraceses = new HashSet<LearnerTraces>(0);
+	private Set<PedagogicalGame> pedagogicalGames = new HashSet<PedagogicalGame>(
+			0);
+	private Set<GrProperty> grProperties = new HashSet<GrProperty>(0);
+
+	
+	private String jsonObject;
+	private List<Pedagogicalresource> pedagogicalResourceList = new ArrayList<Pedagogicalresource>();
+	private List<Types> typesList = new ArrayList<Types>();
+	private Boolean newObject;
+	private Integer projectId;
+	private String json;
+	private String prJson;
+	private Integer typesId;
+	
+	// Constructors
+
+	/** default constructor */
+	public Gameresource() {
+	}
+
+	/** minimal constructor */
+	public Gameresource(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Gameresource(Integer id, Types types, Project project, String name,
+			String value, Set<LearnerTraces> learnerTraceses,
+			Set<PedagogicalGame> pedagogicalGames, Set<GrProperty> grProperties) {
+		this.id = id;
+		this.types = types;
+		this.project = project;
+		this.name = name;
+		this.value = value;
+		this.learnerTraceses = learnerTraceses;
+		this.pedagogicalGames = pedagogicalGames;
+		this.grProperties = grProperties;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "type")
+	public Types getTypes() {
+		return this.types;
+	}
+
+	public void setTypes(Types types) {
+		this.types = types;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project")
+	public Project getProject() {
+		return this.project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "value", length = 65535)
+	public String getValue() {
+		return this.value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<LearnerTraces> getLearnerTraceses() {
+		return this.learnerTraceses;
+	}
+
+	public void setLearnerTraceses(Set<LearnerTraces> learnerTraceses) {
+		this.learnerTraceses = learnerTraceses;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<PedagogicalGame> getPedagogicalGames() {
+		return this.pedagogicalGames;
+	}
+
+	public void setPedagogicalGames(Set<PedagogicalGame> pedagogicalGames) {
+		this.pedagogicalGames = pedagogicalGames;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<GrProperty> getGrProperties() {
+		return this.grProperties;
+	}
+
+	public void setGrProperties(Set<GrProperty> grProperties) {
+		this.grProperties = grProperties;
+	}
+
+	@Transient
+	public String getJsonObject() {
+		return jsonObject;
+	}
+
+	@Transient
+	public void setJsonObject(String jsonObject) {
+		this.jsonObject = jsonObject;
+	}
+
+	@Transient
+	public List<Pedagogicalresource> getPedagogicalResourceList() {
+		return pedagogicalResourceList;
+	}
+
+	@Transient
+	public void setPedagogicalResourceList(
+			List<Pedagogicalresource> pedagogicalResourceList) {
+		this.pedagogicalResourceList = pedagogicalResourceList;
+	}
+
+	@Transient
+	public List<Types> getTypesList() {
+		return typesList;
+	}
+
+	public void setTypesList(List<Types> typesList) {
+		this.typesList = typesList;
+	}
+
+	@Transient
+	public Boolean getNewObject() {
+		return newObject;
+	}
+
+	public void setNewObject(Boolean newObject) {
+		this.newObject = newObject;
+	}
+
+	@Transient
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
+
+	@Transient
+	public String getJson() {
+		return json;
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+	}
+
+	@Transient
+	public String getPrJson() {
+		return prJson;
+	}
+
+	public void setPrJson(String prJson) {
+		this.prJson = prJson;
+	}
+
+	@Transient
+	public Integer getTypesId() {
+		return typesId;
+	}
+
+	public void setTypesId(Integer typesId) {
+		this.typesId = typesId;
+	}
+
+	@Override
+	public String execute() throws Exception {
+		AbstractActionHandler abstractActionHandler = new GameResourceActionHandler(this);
+		abstractActionHandler.execute();
+		
+		return getAction();
+	}
+
+}

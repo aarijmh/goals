@@ -1,0 +1,54 @@
+function initializePCR() {
+
+	$('#myModalPCR')
+			.on(
+					'shown.bs.modal',
+					function(e) {
+						e.stopPropagation();
+
+						editableGridPCR = new EditableGrid("DemoGridJSON");
+						editableGridPCR.tableLoaded = function() {
+
+							this.renderGrid("tablecontentPCR", "testgrid");
+						};
+						var cid = $("#relationId").val();
+						editableGridPCR.loadJSON('pedagogicalresource.action?action=showJSONRelation&relationId='
+										+ cid + '&projectId=' + projectId);
+
+					});
+
+}
+
+function saveConceptPCR() {
+
+	try {
+		var superValues = [];
+		for ( var i = 0; i < editableGridPCR.getRowCount(); i++) {
+			superValues.push(editableGridPCR.getRowValues(i));
+		}
+
+		var formData = {
+			relationId : $("#relationId").val(),
+			json : JSON.stringify(superValues),
+			action : "addEditRelation",
+			projectId : projectId
+		};
+
+		$.ajax({
+			url : "pedagogicalresource.action",
+			type : 'POST',
+			data : formData,
+			context : document.body
+		}).done(function(data) {
+			var obj = JSON.parse(data);
+			$("#pcrMessages").html(obj.messages);
+			$("#relationId").val(obj.relationId);
+			
+		}).fail(function(a, b, c) {
+			alert(a + "\n" + b + "\n" + c);
+		});
+
+	} catch (e) {
+		alert(e);
+	}
+}

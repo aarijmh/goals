@@ -1,0 +1,279 @@
+package com.org.sg.POJO.action;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.ResultPath;
+import org.apache.struts2.convention.annotation.Results;
+import org.apache.struts2.interceptor.SessionAware;
+
+import com.opensymphony.xwork2.Action;
+import com.org.buisnesslogic.ActionHandlers.AbstractActionHandler;
+import com.org.buisnesslogic.ActionHandlers.ProjectActionHandler;
+import com.org.coursegenrator.utilities.Constants;
+
+/**
+ * Project entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "project")
+@ResultPath(value = "/")
+@Results({
+		@Result(name = Constants.LOGGED, location = "logged.jsp"),
+		@Result(name = Constants.SHOW_ADD_EDIT, location = "showAddEditProject.jsp"),
+		@Result(name = Constants.ADD_EDIT, location = "addEditProject.jsp") ,
+		@Result(name = Constants.DELETE, location = "addEditProject.jsp"),
+		@Result(name = Constants.OPEN_PROJECT, location = "workspace.jsp"),
+		@Result(name = Constants.SHOW_KE, location = "showKE.jsp"),
+		@Result(name = Constants.EXIT, location = "logged.jsp")})
+public class Project extends AbstractPOJO implements java.io.Serializable,
+		Action, SessionAware {
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2657452975030514377L;
+	private Integer id;
+	private User user;
+	private String name;
+	private String description;
+	private Date dateCreation;
+	private Set<Adaptationknowledge> adaptationknowledges = new HashSet<Adaptationknowledge>(
+			0);
+	private Set<Concept> concepts = new HashSet<Concept>(0);
+	private Set<Gameresource> gameresources = new HashSet<Gameresource>(0);
+	private Set<Presentation> presentations = new HashSet<Presentation>(0);
+	private Set<ScenarioTrace> scenarioTraces = new HashSet<ScenarioTrace>(0);
+	private Set<Learnerproject> learnerprojects = new HashSet<Learnerproject>(0);
+	private Set<Pedagogicalresource> pedagogicalresources = new HashSet<Pedagogicalresource>(
+			0);
+
+	private Map<String, Object> session;
+	private List<Project> projectList;
+	private Integer numberOfLearners;
+	private String ownerName;
+	private Boolean newObject;
+
+	// Constructors
+
+	/** default constructor */
+	public Project() {
+	}
+
+	/** minimal constructor */
+	public Project(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Project(Integer id, User user, String name, String description,
+			Date dateCreation, Set<Adaptationknowledge> adaptationknowledges,
+			Set<Concept> concepts, Set<Gameresource> gameresources,
+			Set<Presentation> presentations, Set<ScenarioTrace> scenarioTraces,
+			Set<Learnerproject> learnerprojects,
+			Set<Pedagogicalresource> pedagogicalresources) {
+		this.id = id;
+		this.user = user;
+		this.name = name;
+		this.description = description;
+		this.dateCreation = dateCreation;
+		this.adaptationknowledges = adaptationknowledges;
+		this.concepts = concepts;
+		this.gameresources = gameresources;
+		this.presentations = presentations;
+		this.scenarioTraces = scenarioTraces;
+		this.learnerprojects = learnerprojects;
+		this.pedagogicalresources = pedagogicalresources;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user")
+	public User getUser() {
+		return this.user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "description", length = 65535)
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "dateCreation", length = 10)
+	public Date getDateCreation() {
+		return this.dateCreation;
+	}
+
+	public void setDateCreation(Date dateCreation) {
+		this.dateCreation = dateCreation;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Adaptationknowledge> getAdaptationknowledges() {
+		return this.adaptationknowledges;
+	}
+
+	public void setAdaptationknowledges(
+			Set<Adaptationknowledge> adaptationknowledges) {
+		this.adaptationknowledges = adaptationknowledges;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Concept> getConcepts() {
+		return this.concepts;
+	}
+
+	public void setConcepts(Set<Concept> concepts) {
+		this.concepts = concepts;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Gameresource> getGameresources() {
+		return this.gameresources;
+	}
+
+	public void setGameresources(Set<Gameresource> gameresources) {
+		this.gameresources = gameresources;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Presentation> getPresentations() {
+		return this.presentations;
+	}
+
+	public void setPresentations(Set<Presentation> presentations) {
+		this.presentations = presentations;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<ScenarioTrace> getScenarioTraces() {
+		return this.scenarioTraces;
+	}
+
+	public void setScenarioTraces(Set<ScenarioTrace> scenarioTraces) {
+		this.scenarioTraces = scenarioTraces;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Learnerproject> getLearnerprojects() {
+		return this.learnerprojects;
+	}
+
+	public void setLearnerprojects(Set<Learnerproject> learnerprojects) {
+		this.learnerprojects = learnerprojects;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "project")
+	public Set<Pedagogicalresource> getPedagogicalresources() {
+		return this.pedagogicalresources;
+	}
+
+	public void setPedagogicalresources(
+			Set<Pedagogicalresource> pedagogicalresources) {
+		this.pedagogicalresources = pedagogicalresources;
+	}
+
+	@Transient
+	public Map<String, Object> getSession() {
+		return session;
+	}
+
+	@Override
+	public void setSession(Map<String, Object> arg0) {
+		this.session = arg0;
+	}
+
+	@Transient
+	public List<Project> getProjectList() {
+		return projectList;
+	}
+
+	public void setProjectList(List<Project> projectList) {
+		this.projectList = projectList;
+	}
+
+	@Transient
+	public Integer getNumberOfLearners() {
+		return numberOfLearners;
+	}
+
+	public void setNumberOfLearners(Integer numberOfLearners) {
+		this.numberOfLearners = numberOfLearners;
+	}
+
+	@Transient
+	public String getOwnerName() {
+		return ownerName;
+	}
+
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+
+	@Transient
+	public Boolean getNewObject() {
+		return newObject;
+	}
+
+	public void setNewObject(Boolean newObject) {
+		this.newObject = newObject;
+	}
+
+	@Override
+	public String execute() throws Exception {
+
+		AbstractActionHandler actionHandler = new ProjectActionHandler(this);
+		actionHandler.execute();
+
+		return this.getAction();
+	}
+
+}

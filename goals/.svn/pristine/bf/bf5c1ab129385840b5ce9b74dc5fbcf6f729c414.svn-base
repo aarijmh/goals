@@ -1,0 +1,55 @@
+function initializeCCR() {
+
+	$('#myModalCCR')
+			.on(
+					'shown.bs.modal',
+					function(e) {
+						e.stopPropagation();
+
+						editableGridCCR = new EditableGrid("DemoGridJSON");
+						editableGridCCR.tableLoaded = function() {
+
+							this.renderGrid("tablecontentCCR", "testgrid");
+						};
+						var cid = $("relationId").val();
+						editableGridCCR.loadJSON('concept.action?action=showJSONRelation&relationId='
+										+ cid + '&projectId=' + projectId);
+
+					});
+
+}
+
+function saveConceptCCR() {
+
+	try {
+		var superValues = [];
+		for ( var i = 0; i < editableGridCCR.getRowCount(); i++) {
+			superValues.push(editableGridCCR.getRowValues(i));
+		}
+
+		var formData = {
+			relationId : $("#relationId").val(),
+			json : JSON.stringify(superValues),
+			action : "addEditRelation",
+			projectId : projectId
+		};
+
+		$.ajax({
+			url : "concept.action",
+			type : 'POST',
+			data : formData,
+			context : document.body
+		}).done(function(data) {
+			var obj = JSON.parse(data);
+			$("#conceptMessages").html(obj.messages);
+			$("#relationId").val(obj.relationId);
+			
+
+		}).fail(function(a, b, c) {
+			alert(a + "\n" + b + "\n" + c);
+		});
+
+	} catch (e) {
+		alert(e);
+	}
+}

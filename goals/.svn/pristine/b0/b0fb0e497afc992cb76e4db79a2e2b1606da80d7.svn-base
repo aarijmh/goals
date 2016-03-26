@@ -1,0 +1,60 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import org.jasypt.util.password.ConfigurablePasswordEncryptor;
+
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.UserDAO;
+import com.org.sg.POJO.action.User;
+
+public class UserActionHandler extends AbstractActionHandler {
+
+	private User user;
+
+	public UserActionHandler(User user) {
+		super();
+		this.user = user;
+	}
+
+	@Override
+	public void processing() {
+		if (user.getAction().equalsIgnoreCase("login"))
+			checkLogin();
+	}
+
+	public void checkLogin() {
+		if (user.getLogin().trim().equals("")
+				|| user.getPassword().trim().equals("")) {
+			user.getErrors().add(Constants.EMPTY_LOGIN_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		UserDAO userDAO = new UserDAO();
+		User tempUser = userDAO.findByLogin(user.getLogin());
+
+		if (tempUser == null) {
+			user.getErrors().add(Constants.INVALID_USERNAME_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
+		passwordEncryptor.setAlgorithm("SHA-1");
+		passwordEncryptor.setPlainDigest(true);
+
+		if (!passwordEncryptor.checkPassword(Constants.ENCODE_STRING + user.getPassword(), tempUser.getPassword())) {
+			user.getErrors().add(Constants.INVALID_USERNAME_PASSWORD_ERROR);
+			user.setAction(Constants.LOGIN);
+			return;
+		}
+
+		user.getSession().put(Constants.LOGIN, tempUser.getLogin());
+		user.getSession().put(Constants.LOGIN_ID, tempUser.getId());
+		user.getSession().put(Constants.LOGIN_NAME, tempUser.getName());
+		user.getSession().put(Constants.LOGIN_TYPE, tempUser.getType());
+		user.getSession().put(Constants.LOGIN_LEARNER, tempUser.getLearner());
+
+		user.setAction(Constants.LOGGED);
+
+	}
+}

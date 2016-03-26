@@ -1,0 +1,348 @@
+package com.org.buisnesslogic;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.org.sg.DAO.ConceptDAO;
+import com.org.sg.DAO.LearnerDAO;
+import com.org.sg.DAO.PresentationDAO;
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.ConceptPr;
+import com.org.sg.POJO.action.Gameresource;
+import com.org.sg.POJO.action.Learner;
+import com.org.sg.POJO.action.Pedagogicalresource;
+import com.org.sg.POJO.action.Presentation;
+import com.org.sg.POJO.action.Project;
+import com.org.sg.UtilityClasses.ScenarioResults;
+
+public class ScenarioGenerator {
+
+	private List<Integer> conceptIdList;
+	private List<String> valueList;
+	private Integer learnerId;
+	private Integer presentationId;
+	private Map<Concept, Map<Pedagogicalresource, Gameresource>> gameResult;
+	private Map<Concept,List<Concept>> reasoningMap = new LinkedHashMap<Concept, List<Concept>>();
+
+	private ScenarioResults results;
+	
+	private JSONArray objectiveJSON;
+	
+	private Learner learner;
+	
+	private Project project;
+	
+	private Presentation presentation;
+
+	public ScenarioGenerator() {
+
+	}
+
+	public ScenarioGenerator(List<Integer> cList, List<String> vList, Integer lea, Integer pID) {
+		conceptIdList = cList;
+		valueList = vList;
+		learnerId = lea;
+		results = new ScenarioResults();
+		presentationId = pID;
+		objectiveJSON = new JSONArray();
+	}
+
+	public void generateScenario() {
+		
+		try
+		{
+	//		HibernateSessionFactory.getSession().beginTransaction();
+	
+			LearnerDAO learnerDAO = new LearnerDAO();
+			ConceptDAO conceptDAO = new ConceptDAO();
+	
+			PresentationDAO presentationDAO = new PresentationDAO();
+			
+			this.presentation = presentationDAO.findById(presentationId);
+	
+			learner = learnerDAO.findById(learnerId);
+	
+			ConceptGeneratorAlgorithm algorithm = new ConceptGeneratorAlgorithm();
+			ResourceSelectorAlgorithm resourceSelectorAlgorithm = new ResourceSelectorAlgorithm();
+			SeriousResourceSelectorAlgorithm seriousResourceSelectorAlgorithm = new SeriousResourceSelectorAlgorithm();
+	
+			List<Concept> conceptList = new ArrayList<Concept>();
+			List<Float> floatList = new ArrayList<Float>();
+	
+			for (int i = 0; i < conceptIdList.size(); i++) {
+				Concept c = conceptDAO.findById(conceptIdList.get(i));
+				conceptList.add(c);
+				floatList.add(Float.valueOf(valueList.get(i)));
+				
+				
+				JSONObject jo = new JSONObject();
+				jo.put("conceptId", c.getId());
+				jo.put("conceptName", c.getName());
+				jo.put("objective", Float.valueOf(valueList.get(i)));
+
+				objectiveJSON.put(jo);
+			}
+			
+			if(conceptList.size() > 0)
+				this.project = conceptList.get(0).getProject();
+	
+			Map<Integer, Map<Concept, String>> result = algorithm.generateConcepts(conceptList, floatList, learner, false, 1);
+	
+			results.setConceptResult(result);
+			this.setReasoningMap(algorithm.getReasoningMap());
+	
+	//		for (Integer i : result.keySet()) {
+	//			Map<Conceptrelation, String> m = result.get(i);
+	//
+	//			for (Conceptrelation cr : m.keySet()) {
+	//				System.out.println(i + "   " + cr.getId() + "  " + cr.getConceptByConceptFrom().getName() + "     " + cr.getConceptByConceptTo().getName());
+	//			}
+	//		}
+	
+			Map<Integer, Map<Concept, Map<ConceptPr, Map<String, String>>>> pedResResult = new LinkedHashMap<Integer, Map<Concept, Map<ConceptPr, Map<String, String>>>>();
+	
+			for (Integer i : result.keySet()) {
+				List<Concept> toList = new ArrayList<Concept>();
+				Map<Concept, Concept> conceptMap = new LinkedHashMap<Concept, Concept>();
+	
+				for (Concept cr : result.get(i).keySet()) {
+					conceptMap.put(cr, cr);
+	//				conceptMap.put(cr.getConceptByConceptTo(), cr.getConceptByConceptTo());
+				}
+				toList.addAll(conceptMap.keySet());
+	
+				Map<Concept, Map<ConceptPr, Map<String, String>>> resoureResult = resourceSelectorAlgorithm.generateResources(toList, this.presentation.getPresentationPrs(), learner);
+				pedResResult.put(i, resoureResult);
+			}
+	
+			results.setPedagogicalResult(pedResResult);
+	
+			Map<Integer, Map<Concept, Map<Pedagogicalresource, Gameresource>>> gameResResult = new LinkedHashMap<Integer, Map<Concept, Map<Pedagogicalresource, Gameresource>>>();
+	
+			for (Integer i : pedResResult.keySet()) {
+				gameResult = seriousResourceSelectorAlgorithm.generateSeriousResource(pedResResult.get(i), learner);
+	
+				gameResResult.put(i, gameResult);
+			}
+	
+			results.setGameResult(gameResResult);
+	
+		//	HibernateSessionFactory.getSession().getTransaction().commit();
+		//	HibernateSessionFactory.getSession().close();
+			}
+		catch(JSONException je)
+		{
+			je.printStackTrace();
+		}
+	}
+
+	public List<Integer> getConceptIdList() {
+		return conceptIdList;
+	}
+
+	public void setConceptIdList(List<Integer> conceptList) {
+		this.conceptIdList = conceptList;
+	}
+
+	public List<String> getValueList() {
+		return valueList;
+	}
+
+	public void setValueList(List<String> valueList) {
+		this.valueList = valueList;
+	}
+
+	public Integer getLearnerId() {
+		return learnerId;
+	}
+
+	public void setLearnerId(Integer learner) {
+		this.learnerId = learner;
+	}
+
+	public Map<Concept, Map<Pedagogicalresource, Gameresource>> getGameResult() {
+		return gameResult;
+	}
+
+	public void setGameResult(Map<Concept, Map<Pedagogicalresource, Gameresource>> gameResult) {
+		this.gameResult = gameResult;
+	}
+
+	public ScenarioResults getResults() {
+		return results;
+	}
+
+	public void setResults(ScenarioResults results) {
+		this.results = results;
+	}
+
+	public Map<Concept, List<Concept>> getReasoningMap() {
+		return reasoningMap;
+	}
+
+	public void setReasoningMap(Map<Concept, List<Concept>> reasoningMap) {
+		this.reasoningMap = reasoningMap;
+	}
+
+	public Integer getPresentationId() {
+		return presentationId;
+	}
+
+	public void setPresentationId(Integer presentationId) {
+		this.presentationId = presentationId;
+	}
+
+	public JSONArray getObjectiveJSON() {
+		return objectiveJSON;
+	}
+
+	public void setObjectiveJSON(JSONArray objectiveJSON) {
+		this.objectiveJSON = objectiveJSON;
+	}
+
+	public Learner getLearner() {
+		return learner;
+	}
+
+	public void setLearner(Learner learner) {
+		this.learner = learner;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public Presentation getPresentation() {
+		return presentation;
+	}
+
+	public void setPresentation(Presentation presentation) {
+		this.presentation = presentation;
+	}
+
+	public String getTextualScenario(ScenarioResults scenarioResult, Map<Concept, List<Concept>> reasoningMap, Integer index) {
+		StringBuffer buffer = new StringBuffer();
+		Map<Concept, Concept> doneMap = new LinkedHashMap<Concept, Concept>();
+
+		for (Concept c : reasoningMap.keySet()) {
+			buffer.append("\n");
+			buffer.append("For the target concept : ").append(c.getName()).append("\n");
+			buffer.append("------------------------------------------").append("\n");
+			if (reasoningMap.get(c).size() > 0) {
+				buffer.append("\nSelected concept(s) : \n");
+
+				for (Concept subC : reasoningMap.get(c)) {
+					buffer.append(subC.getName()).append("   Percentage : ").append(scenarioResult.getConceptResult().get(index).get(subC)).append("\n");
+				}
+			}
+
+			Map<ConceptPr, Map<String, String>> pedMap = scenarioResult.getPedagogicalResult().get(index).get(c);
+			if (pedMap.keySet().size() > 0) {
+				buffer.append("\nSelected pedagogical resources for this concept : ").append("\n");
+
+				for (ConceptPr cr : pedMap.keySet()) {
+					buffer.append(cr.getPedagogicalresource().getName()).append("\n");
+					// generator.getResults().getPedagogicalResourceList().add(cr.getPedagogicalresource().getId());
+					/*
+					 * Put on all the adaptation knowledge
+					 */
+
+					Map<Pedagogicalresource, Gameresource> gameMap = scenarioResult.getGameResult().get(index).get(c);
+
+					buffer.append("Selected game resources for this pedagogical resource : ").append(gameMap.get(cr.getPedagogicalresource())).append("\n");
+
+				}
+			}
+
+			if (!doneMap.containsKey(c)) {
+
+				Map<ConceptPr, Map<String, String>> pMap = scenarioResult.getPedagogicalResult().get(index).get(c);
+				if (pMap.keySet().size() > 0) {
+					buffer.append("\nFor the  concept : ").append(c.getName()).append("\n");
+					buffer.append("\nSelected pedagogical resources for this concept : ").append("\n");
+					for (ConceptPr cr : pMap.keySet()) {
+						buffer.append(cr.getPedagogicalresource().getName()).append("\n");
+						// generator.getResults().getPedagogicalResourceList().add(cr.getPedagogicalresource().getId());
+						/*
+						 * Put on all the adaptation knowledge
+						 */
+
+						Map<Pedagogicalresource, Gameresource> gameMap = scenarioResult.getGameResult().get(index).get(c);
+
+						buffer.append("Selected game resources for this pedagogical resource : ").append(gameMap.get(cr.getPedagogicalresource())).append("\n");
+
+					}
+				}
+			}
+
+			doneMap.put(c, c);
+
+			buffer.append("\n");
+
+		}
+
+		return buffer.toString();
+	}
+
+	public String getTextualScenario(ScenarioResults scenarioResult, Integer index) {
+		StringBuffer buffer = new StringBuffer();
+		Map<Concept, Concept> doneMap = new LinkedHashMap<Concept, Concept>();
+
+		for (Concept c : scenarioResult.getConceptResult().get(index).keySet()) {
+			buffer.append("\n");
+			buffer.append("For the target concept : ").append(c.getName()).append("\n");
+			buffer.append("------------------------------------------").append("\n");
+			buffer.append("Selected concept : ").append(c.getName()).append("   Percentage : ").append(scenarioResult.getConceptResult().get(c)).append("\n");
+			buffer.append("Selected pedagogical resources for this concept : ").append("\n");
+			Map<ConceptPr, Map<String, String>> pedMap = scenarioResult.getPedagogicalResult().get(index).get(c);
+			for (ConceptPr cr : pedMap.keySet()) {
+				buffer.append(cr.getPedagogicalresource().getName()).append("\n");
+				// generator.getResults().getPedagogicalResourceList().add(cr.getPedagogicalresource().getId());
+				/*
+				 * Put on all the adaptation knowledge
+				 */
+
+				Map<Pedagogicalresource, Gameresource> gameMap = scenarioResult.getGameResult().get(index).get(c);
+
+				buffer.append("Selected game resources for this pedagogical resource : ").append(gameMap.get(cr.getPedagogicalresource())).append("\n");
+
+			}
+
+			if (!doneMap.containsKey(c)) {
+				buffer.append("For the  concept : ").append(c.getName()).append("\n");
+
+				buffer.append("Selected pedagogical resources for this concept : ").append("\n");
+				Map<ConceptPr, Map<String, String>> pMap = scenarioResult.getPedagogicalResult().get(index).get(c);
+				for (ConceptPr cr : pMap.keySet()) {
+					buffer.append(cr.getPedagogicalresource().getName()).append("\n");
+					// generator.getResults().getPedagogicalResourceList().add(cr.getPedagogicalresource().getId());
+					/*
+					 * Put on all the adaptation knowledge
+					 */
+
+					Map<Pedagogicalresource, Gameresource> gameMap = scenarioResult.getGameResult().get(index).get(c);
+
+					buffer.append("Selected game resources for this pedagogical resource : ").append(gameMap.get(cr.getPedagogicalresource())).append("\n");
+
+				}
+			}
+
+			doneMap.put(c, c);
+
+			buffer.append("\n");
+
+		}
+
+		return buffer.toString();
+	}
+}

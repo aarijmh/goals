@@ -1,0 +1,100 @@
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<body>
+<br>
+<br>
+
+	<div class="row">
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Learners</h3>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="selectbasic">Learner</label>
+						<div class="col-md-8">
+							<s:select list="learnerList" listKey="id" listValue="name"  cssClass="form-control"></s:select>
+						</div>
+					</div>
+
+					<div class="form-group" style="margin-top: 10px;">
+						<label class="col-md-4 control-label" for="selectbasic">Presentations</label>
+						<div class="col-md-8">
+							<s:select list="presentationList" listKey="id" listValue="name"  cssClass="form-control"></s:select>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+		
+					<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Pedagogical Objectives</h3>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+					<div class="col-md-6">
+					<div class="row">
+						<label class="col-md-12 control-label" for="selectbasic">Concepts</label>
+						</div>
+						<div class="row">
+						<div class="col-md-12">
+							<s:select list="conceptList" listKey="id" listValue="name"  cssClass="form-control"></s:select>
+						</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+					
+					</div>
+					</div>
+
+					<div class="form-group" style="margin-top: 10px;">
+						<label class="col-md-4 control-label" for="selectbasic">Values</label>
+						<div class="col-md-8">
+							<select id="valueSelect">
+								<option value="0">0</option>
+								<option value="10">10</option>
+								<option value="20">20</option>
+								<option value="30">30</option>
+								<option value="40">40</option>
+								<option value="50">50</option>
+								<option value="60">60</option>
+								<option value="70">70</option>
+								<option value="80">80</option>
+								<option value="90">90</option>
+								<option value="100">1000</option>
+							</select>
+						</div>
+
+					</div>	
+					<br>
+				</div>
+			</div>
+		
+		</div>
+		<div class="col-md-3">
+		
+	
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Scenario Generator</h3>
+				</div>
+				<div class="panel-body">
+					<button type="button" class="btn btn-default">Generate</button>
+					<button type="button" class="btn btn-default">Generate Game</button>
+				</div>
+				<br>
+				<br>
+				
+			</div>
+		</div>
+=
+	</div>
+</body>
+</html>

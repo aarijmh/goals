@@ -1,0 +1,135 @@
+package com.org.sg.POJO.action;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+/**
+ * Gameresource entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "gameresource", catalog = "scenariogenerator")
+public class Gameresource implements java.io.Serializable {
+
+	// Fields
+
+	private Integer id;
+	private Types types;
+	private Project project;
+	private String name;
+	private String value;
+	private Set<LearnerTraces> learnerTraceses = new HashSet<LearnerTraces>(0);
+	private Set<PedagogicalGame> pedagogicalGames = new HashSet<PedagogicalGame>(
+			0);
+	private Set<GrProperty> grProperties = new HashSet<GrProperty>(0);
+
+	// Constructors
+
+	/** default constructor */
+	public Gameresource() {
+	}
+
+	/** minimal constructor */
+	public Gameresource(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Gameresource(Integer id, Types types, Project project, String name,
+			String value, Set<LearnerTraces> learnerTraceses,
+			Set<PedagogicalGame> pedagogicalGames, Set<GrProperty> grProperties) {
+		this.id = id;
+		this.types = types;
+		this.project = project;
+		this.name = name;
+		this.value = value;
+		this.learnerTraceses = learnerTraceses;
+		this.pedagogicalGames = pedagogicalGames;
+		this.grProperties = grProperties;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "type")
+	public Types getTypes() {
+		return this.types;
+	}
+
+	public void setTypes(Types types) {
+		this.types = types;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project")
+	public Project getProject() {
+		return this.project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "value", length = 65535)
+	public String getValue() {
+		return this.value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<LearnerTraces> getLearnerTraceses() {
+		return this.learnerTraceses;
+	}
+
+	public void setLearnerTraceses(Set<LearnerTraces> learnerTraceses) {
+		this.learnerTraceses = learnerTraceses;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<PedagogicalGame> getPedagogicalGames() {
+		return this.pedagogicalGames;
+	}
+
+	public void setPedagogicalGames(Set<PedagogicalGame> pedagogicalGames) {
+		this.pedagogicalGames = pedagogicalGames;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "gameresource")
+	public Set<GrProperty> getGrProperties() {
+		return this.grProperties;
+	}
+
+	public void setGrProperties(Set<GrProperty> grProperties) {
+		this.grProperties = grProperties;
+	}
+
+}

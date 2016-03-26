@@ -1,0 +1,292 @@
+package com.org.sg.POJO.action;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.ResultPath;
+import org.apache.struts2.convention.annotation.Results;
+
+import com.opensymphony.xwork2.Action;
+import com.org.buisnesslogic.ActionHandlers.AbstractActionHandler;
+import com.org.buisnesslogic.ActionHandlers.PedagogicalResourceActionHandler;
+import com.org.coursegenrator.utilities.Constants;
+
+/**
+ * Pedagogicalresource entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "pedagogicalresource", catalog = "scenariogenerator")
+@ResultPath(value = "/")
+@Results({ 
+	    @Result(name = Constants.SHOW_ADD_EDIT, location = "showAddEditPR.jsp"),
+	    @Result(name = Constants.ADD_EDIT, location = "jsonData.jsp"),
+	    @Result(name = Constants.SHOW_JSON, location = "jsonData.jsp"),
+	    @Result(name = Constants.SHOW_PROPERTIES, location = "jsonData.jsp"),
+	    @Result(name = Constants.SHOW_ADD_EDIT_RELATION, location = "showAddEditPCR.jsp"),
+	    @Result(name = Constants.SHOW_JSON_RELATION, location = "jsonData.jsp"),
+	    @Result(name = Constants.ADD_EDIT_RELATION, location = "jsonData.jsp")})
+public class Pedagogicalresource  extends AbstractPOJO implements java.io.Serializable, Action  {
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9067363145505453634L;
+	private Integer id;
+	private Types types;
+	private Project project;
+	private String name;
+	private String description;
+	private Set<LearnerTraces> learnerTraceses = new HashSet<LearnerTraces>(0);
+	private Set<PedagogicalGame> pedagogicalGames = new HashSet<PedagogicalGame>(
+			0);
+	private Set<ConceptPr> conceptPrs = new HashSet<ConceptPr>(0);
+	private Set<Adaptationknowledge> adaptationknowledges = new HashSet<Adaptationknowledge>(
+			0);
+	private Set<PrProperty> prProperties = new HashSet<PrProperty>(0);
+
+	
+	private String jsonObject;
+	private List<Concept> conceptList = new ArrayList<Concept>();
+	private List<Types> typesList = new ArrayList<Types>();
+	private Boolean newObject;
+	private Integer projectId;
+	private String json;
+	private String prJson;
+	private Integer typesId;
+	private Integer relationId;
+	
+	// Constructors
+
+	/** default constructor */
+	public Pedagogicalresource() {
+	}
+
+	/** minimal constructor */
+	public Pedagogicalresource(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public Pedagogicalresource(Integer id, Types types, Project project,
+			String name, String description,
+			Set<LearnerTraces> learnerTraceses,
+			Set<PedagogicalGame> pedagogicalGames, Set<ConceptPr> conceptPrs,
+			Set<Adaptationknowledge> adaptationknowledges,
+			Set<PrProperty> prProperties) {
+		this.id = id;
+		this.types = types;
+		this.project = project;
+		this.name = name;
+		this.description = description;
+		this.learnerTraceses = learnerTraceses;
+		this.pedagogicalGames = pedagogicalGames;
+		this.conceptPrs = conceptPrs;
+		this.adaptationknowledges = adaptationknowledges;
+		this.prProperties = prProperties;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "type")
+	public Types getTypes() {
+		return this.types;
+	}
+
+	public void setTypes(Types types) {
+		this.types = types;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project")
+	public Project getProject() {
+		return this.project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "description", length = 65535)
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pedagogicalresource")
+	public Set<LearnerTraces> getLearnerTraceses() {
+		return this.learnerTraceses;
+	}
+
+	public void setLearnerTraceses(Set<LearnerTraces> learnerTraceses) {
+		this.learnerTraceses = learnerTraceses;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pedagogicalresource")
+	public Set<PedagogicalGame> getPedagogicalGames() {
+		return this.pedagogicalGames;
+	}
+
+	public void setPedagogicalGames(Set<PedagogicalGame> pedagogicalGames) {
+		this.pedagogicalGames = pedagogicalGames;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pedagogicalresource")
+	public Set<ConceptPr> getConceptPrs() {
+		return this.conceptPrs;
+	}
+
+	public void setConceptPrs(Set<ConceptPr> conceptPrs) {
+		this.conceptPrs = conceptPrs;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pedagogicalresource")
+	public Set<Adaptationknowledge> getAdaptationknowledges() {
+		return this.adaptationknowledges;
+	}
+
+	public void setAdaptationknowledges(
+			Set<Adaptationknowledge> adaptationknowledges) {
+		this.adaptationknowledges = adaptationknowledges;
+	}
+
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "pedagogicalresource")
+	public Set<PrProperty> getPrProperties() {
+		return this.prProperties;
+	}
+
+	public void setPrProperties(Set<PrProperty> prProperties) {
+		this.prProperties = prProperties;
+	}
+
+	@Transient
+	public String getJsonObject() {
+		return jsonObject;
+	}
+
+	public void setJsonObject(String jsonObject) {
+		this.jsonObject = jsonObject;
+	}
+
+	@Transient
+	public List<Concept> getConceptList() {
+		return conceptList;
+	}
+
+	public void setConceptList(List<Concept> conceptList) {
+		this.conceptList = conceptList;
+	}
+
+	@Transient
+	public Boolean getNewObject() {
+		return newObject;
+	}
+
+	public void setNewObject(Boolean newObject) {
+		this.newObject = newObject;
+	}
+
+	@Transient
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
+
+	@Transient
+	public String getJson() {
+		return json;
+	}
+
+	public void setJson(String json) {
+		this.json = json;
+	}
+	
+	@Transient
+	public String getPrJson() {
+		return prJson;
+	}
+
+	public void setPrJson(String prJson) {
+		this.prJson = prJson;
+	}
+
+	@Transient
+	public List<Types> getTypesList() {
+		return typesList;
+	}
+
+	public void setTypesList(List<Types> typesList) {
+		this.typesList = typesList;
+	}
+
+	@Transient
+	public Integer getTypesId() {
+		return typesId;
+	}
+
+	public void setTypesId(Integer typesId) {
+		this.typesId = typesId;
+	}
+
+	@Transient
+	public Integer getRelationId() {
+		return relationId;
+	}
+
+	public void setRelationId(Integer relationId) {
+		this.relationId = relationId;
+	}
+
+	@Override
+	public String execute() throws Exception {
+		
+		AbstractActionHandler handler = new PedagogicalResourceActionHandler(this);
+		handler.execute();
+		
+		return this.getAction();
+	}
+
+}

@@ -1,0 +1,90 @@
+package com.org.sg.POJO.action;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+/**
+ * CProperty entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "c_property")
+public class CProperty implements java.io.Serializable {
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2392533110804980731L;
+	private Integer id;
+	private Concept concept;
+	private String name;
+	private String value;
+
+	// Constructors
+
+	/** default constructor */
+	public CProperty() {
+	}
+
+	/** minimal constructor */
+	public CProperty(Integer id) {
+		this.id = id;
+	}
+
+	/** full constructor */
+	public CProperty(Integer id, Concept concept, String name, String value) {
+		this.id = id;
+		this.concept = concept;
+		this.name = name;
+		this.value = value;
+	}
+
+	// Property accessors
+	@Id
+	@Column(name = "id", unique = true, nullable = false)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "concept")
+	public Concept getConcept() {
+		return this.concept;
+	}
+
+	public void setConcept(Concept concept) {
+		this.concept = concept;
+	}
+
+	@Column(name = "name", length = 65535)
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Column(name = "value", length = 65535)
+	public String getValue() {
+		return this.value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+}

@@ -1,0 +1,495 @@
+package com.org.buisnesslogic.ActionHandlers;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.org.coursegenrator.utilities.Constants;
+import com.org.sg.DAO.ConceptDAO;
+import com.org.sg.DAO.ConceptPrDAO;
+import com.org.sg.DAO.PedagogicalresourceDAO;
+import com.org.sg.DAO.PrPropertyDAO;
+import com.org.sg.DAO.ProjectDAO;
+import com.org.sg.DAO.TypesDAO;
+import com.org.sg.POJO.action.Concept;
+import com.org.sg.POJO.action.ConceptPr;
+import com.org.sg.POJO.action.Pedagogicalresource;
+import com.org.sg.POJO.action.PrProperty;
+
+public class PedagogicalResourceActionHandler extends AbstractActionHandler {
+
+	Pedagogicalresource pedagogicalresource;
+
+	public PedagogicalResourceActionHandler(Pedagogicalresource pedagogicalresource) {
+		this.pedagogicalresource = pedagogicalresource;
+	}
+
+	@Override
+	public void processing() {
+
+		if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.LOGGED))
+			show();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT))
+			showAddEdit();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.ADD_EDIT))
+			addEdit();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.DELETE))
+			delete();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.SHOW_JSON))
+			showJson();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.SHOW_PROPERTIES))
+			showProperties();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.SHOW_ADD_EDIT_RELATION))
+			showAddEditRelation();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.ADD_EDIT_RELATION))
+			addEditRelation();
+		else if (pedagogicalresource.getAction().equalsIgnoreCase(Constants.SHOW_JSON_RELATION))
+			showJsonRelation();
+		
+	}
+
+	public void show() {
+
+	}
+
+	public void showAddEdit() {
+		PedagogicalresourceDAO pedagogicalresourceDAO = new PedagogicalresourceDAO();
+		TypesDAO typesDAO = new TypesDAO();
+
+		if (pedagogicalresource.getId() != null && !pedagogicalresource.getId().equals(0)) {
+			Pedagogicalresource p = pedagogicalresourceDAO.findById(pedagogicalresource.getId());
+			pedagogicalresource.setName(p.getName().replaceAll("'", "\'"));
+			pedagogicalresource.setDescription(p.getDescription().replaceAll("'", "\'"));
+			pedagogicalresource.setId(p.getId());
+		}
+
+		pedagogicalresource.setTypesList(typesDAO.findAll());
+	}
+
+	public void showJson() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Map<String, List<Map<String, Object>>> myMap = new LinkedHashMap<String, List<Map<String, Object>>>();
+
+		List<Map<String, Object>> metaDataList = new ArrayList<Map<String, Object>>();
+
+		ConceptDAO conceptDAO = new ConceptDAO();
+		List<Concept> conceptList = conceptDAO.findOfProject(pedagogicalresource.getProjectId());
+
+
+		Map<String, Object> nameMap = new LinkedHashMap<String, Object>();
+		nameMap.put("name", "select");
+		nameMap.put("label", "Select");
+		nameMap.put("datatype", "html");
+		nameMap.put("editable", false);
+		metaDataList.add(nameMap);
+
+		Map<String, Object> pedagogicalresourceNameMap = new LinkedHashMap<String, Object>();
+		pedagogicalresourceNameMap.put("name", "concept");
+		pedagogicalresourceNameMap.put("label", "Concept");
+		pedagogicalresourceNameMap.put("datatype", "string");
+		pedagogicalresourceNameMap.put("editable", true);
+
+		Map<String, String> conceptValueMap = new LinkedHashMap<String, String>();
+		conceptValueMap.put("0","Select a concept");
+		for (Concept c : conceptList) {
+			conceptValueMap.put(c.getId().toString(), c.getName());
+		}
+		pedagogicalresourceNameMap.put("values", conceptValueMap);
+		metaDataList.add(pedagogicalresourceNameMap);
+
+
+		Map<String, Object> valuesNameMap = new LinkedHashMap<String, Object>();
+		valuesNameMap.put("name", "values");
+		valuesNameMap.put("label", "Values");
+		valuesNameMap.put("datatype", "string");
+		valuesNameMap.put("editable", true);
+
+		Map<Integer, String> valuesValueMap = new LinkedHashMap<Integer, String>();
+		valuesValueMap.put(0, "Select a value");
+		valuesValueMap.put(10, "10");
+		valuesValueMap.put(20, "20");
+		valuesValueMap.put(30, "30");
+		valuesValueMap.put(40, "40");
+		valuesValueMap.put(50, "50");
+		valuesValueMap.put(60, "60");
+		valuesValueMap.put(70, "70");
+		valuesValueMap.put(80, "80");
+		valuesValueMap.put(90, "90");
+		valuesValueMap.put(100, "100");
+
+		valuesNameMap.put("values", valuesValueMap);
+		metaDataList.add(valuesNameMap);
+		
+		Map<String, Object> rkNameMap = new LinkedHashMap<String, Object>();
+		rkNameMap.put("name", "rk");
+		rkNameMap.put("label", "Required Knowledge");
+		rkNameMap.put("datatype", "string");
+		rkNameMap.put("editable", true);
+
+		Map<Integer, String> rkValueMap = new LinkedHashMap<Integer, String>();
+		rkValueMap.put(0, "Select a value");
+		rkValueMap.put(10, "10");
+		rkValueMap.put(20, "20");
+		rkValueMap.put(30, "30");
+		rkValueMap.put(40, "40");
+		rkValueMap.put(50, "50");
+		rkValueMap.put(60, "60");
+		rkValueMap.put(70, "70");
+		rkValueMap.put(80, "80");
+		rkValueMap.put(90, "90");
+		rkValueMap.put(100, "100");
+
+		rkNameMap.put("values", rkValueMap);
+		metaDataList.add(rkNameMap);
+		
+		Map<String, Object> actionMap = new LinkedHashMap<String, Object>();
+		actionMap.put("name", "action");
+		actionMap.put("label", "Action");
+		actionMap.put("datatype", "html");
+		actionMap.put("editable", false);
+		metaDataList.add(actionMap);
+
+		myMap.put("metadata", metaDataList);
+
+		if (this.pedagogicalresource.getId() != null && !this.pedagogicalresource.getId().equals(0)) {
+			ConceptPrDAO conceptPrDAO = new ConceptPrDAO();
+			
+			List<ConceptPr> conceptPrList = conceptPrDAO.findCPRSOfPedagogicalResource(this.pedagogicalresource.getId());
+
+			List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+
+			for (ConceptPr cr : conceptPrList) {
+				Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+				dataMap.put("id", cr.getId());
+				Map<String, String> dataValueMap = new LinkedHashMap<String, String>();
+				dataValueMap.put("select", "<input type=\"checkbox\" name=\"pedagogicalresourceSelect\" value=\""+cr.getId().toString()+"\">");
+				dataValueMap.put("concept", cr.getConcept().getId()
+						.toString());
+				dataValueMap.put("values", cr.getValue());
+				dataValueMap.put("rk", cr.getRequiredKnowledge());
+				dataValueMap.put("action", " ");
+				dataMap.put("values", dataValueMap);
+				dataList.add(dataMap);
+			}
+			myMap.put("data", dataList);
+		}
+		
+		pedagogicalresource.setJson(gson.toJson(myMap));
+	}
+	
+	public void showProperties()
+	{
+		Gson gson = new Gson();
+		Map<String, List<Map<String, Object>>> myMap = new LinkedHashMap<String, List<Map<String, Object>>>();
+		List<Map<String, Object>> metaDataList = new ArrayList<Map<String, Object>>();
+		
+		Map<String, Object> selectMap = new LinkedHashMap<String, Object>();
+		selectMap.put("name", "select");
+		selectMap.put("label", "Select");
+		selectMap.put("datatype", "html");
+		selectMap.put("editable", false);
+		metaDataList.add(selectMap);
+		
+		Map<String, Object> nameMap = new LinkedHashMap<String, Object>();
+		nameMap.put("name", "name");
+		nameMap.put("label", "Name");
+		nameMap.put("datatype", "text");
+		nameMap.put("editable", true);
+		metaDataList.add(nameMap);
+		
+		Map<String, Object> propertiesMap = new LinkedHashMap<String, Object>();
+		propertiesMap.put("name", "value");
+		propertiesMap.put("label", "Values");
+		propertiesMap.put("datatype", "text");
+		propertiesMap.put("editable", true);
+		metaDataList.add(propertiesMap);
+		
+		Map<String, Object> actionMap = new LinkedHashMap<String, Object>();
+		actionMap.put("name", "action");
+		actionMap.put("label", "Action");
+		actionMap.put("datatype", "html");
+		actionMap.put("editable", false);
+		metaDataList.add(actionMap);
+		
+		myMap.put("metadata", metaDataList);
+		
+		if (this.pedagogicalresource.getId() != null && !this.pedagogicalresource.getId().equals(0)) {
+			PrPropertyDAO prPropertyDAO = new PrPropertyDAO();
+			List<PrProperty> prProperties = prPropertyDAO.findOfPedagogicalResource(this.pedagogicalresource.getId());
+			
+			List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+			
+			for (PrProperty cr : prProperties) {
+				Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+				dataMap.put("id", cr.getId());
+				
+				Map<String, String> dataValueMap = new LinkedHashMap<String, String>();
+				dataValueMap.put("select", "<input type=\"checkbox\" name=\"prPropertySelect\" value=\""+cr.getId().toString()+"\">");
+				dataValueMap.put("name", cr.getName());
+				dataValueMap.put("value", cr.getValue());
+				dataValueMap.put("action", "");
+
+				dataMap.put("values", dataValueMap);
+				
+				dataList.add(dataMap);
+			}
+			myMap.put("data", dataList);
+		}
+		
+		pedagogicalresource.setJson(gson.toJson(myMap));
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addEdit() {
+		
+		PedagogicalresourceDAO pedagogicalresourceDAO = new PedagogicalresourceDAO();
+		ConceptPrDAO conceptPrDAO  = new ConceptPrDAO();
+		PrPropertyDAO prPropertyDAO = new PrPropertyDAO();
+		TypesDAO typesDAO = new TypesDAO();
+		
+		ProjectDAO projectDAO = new ProjectDAO(); 
+		ConceptDAO conceptDAO = new ConceptDAO();
+		
+		Gson gson = new Gson();
+		
+		List<Map<String,String>> jsoned = new ArrayList<Map<String,String>>();
+		jsoned = gson.fromJson(pedagogicalresource.getJson(), List.class);
+		
+		List<Map<String,String>> properties = new ArrayList<Map<String,String>>();
+		properties = gson.fromJson(pedagogicalresource.getPrJson(), List.class);
+		
+		Pedagogicalresource pr = new Pedagogicalresource();
+		
+		if (this.pedagogicalresource.getId() != null && !this.pedagogicalresource.getId().equals(0)) {
+			pr = pedagogicalresourceDAO.findById(pedagogicalresource.getId());
+			conceptPrDAO.deleteOfPR(this.pedagogicalresource.getId());
+			prPropertyDAO.deleteOfPR(this.pedagogicalresource.getId());
+		}
+		
+		pr.setName(pedagogicalresource.getName());
+		pr.setDescription(pedagogicalresource.getDescription());
+		pr.setProject(projectDAO.findById(pedagogicalresource.getProjectId()));
+		pr.setTypes(typesDAO.findById(pedagogicalresource.getTypesId()));
+		pedagogicalresourceDAO.save(pr);
+		
+		
+		
+		for(Map<String,String> maps : jsoned)
+		{
+			Integer id = Integer.valueOf(maps.get("concept"));
+			if(id != null && !id.equals(0))
+			{
+				ConceptPr cr = new  ConceptPr();
+				cr.setPedagogicalresource(pr);
+				cr.setConcept(conceptDAO.findById(id));
+				cr.setValue(maps.get("values"));
+				cr.setRequiredKnowledge(maps.get("rk"));
+				
+				conceptPrDAO.save(cr);
+			}
+		}
+		
+		for(Map<String,String> maps : properties)
+		{
+			String name = maps.get("name");
+			if(name != null && !name.trim().equalsIgnoreCase(""))
+			{
+				PrProperty cProperty = new PrProperty();
+				cProperty.setPedagogicalresource(pr);
+				cProperty.setName(name);
+				cProperty.setValue(maps.get("value"));
+				
+				prPropertyDAO.save(cProperty);
+			}
+		}
+		
+		pedagogicalresource.getErrors().add("Pedagogical Resource Saved Successfully");
+		Map<String,Object> responseMap = new LinkedHashMap<String, Object>();
+		responseMap.put("messages", pedagogicalresource.getErrors());
+		responseMap.put("id", pr.getId());
+		pedagogicalresource.setJson(gson.toJson(responseMap));
+	}
+
+	public void delete() {
+		if (this.pedagogicalresource.getId() != null && !this.pedagogicalresource.getId().equals(0)) {
+			PedagogicalresourceDAO pedagogicalresourceDAO = new PedagogicalresourceDAO(); 
+			pedagogicalresourceDAO.delete(pedagogicalresourceDAO.findById(this.pedagogicalresource.getId()));
+		}
+	}
+	
+	public void showAddEditRelation() {
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void addEditRelation() {
+		PedagogicalresourceDAO pedagogicalresourceDAO = new PedagogicalresourceDAO();
+		ConceptPrDAO conceptPrDAO  = new ConceptPrDAO();
+		ConceptDAO conceptDAO = new ConceptDAO();
+		
+		Gson gson = new Gson();
+		
+		List<Map<String,String>> jsoned = new ArrayList<Map<String,String>>();
+		jsoned = gson.fromJson(pedagogicalresource.getJson(), List.class);
+
+		
+		ConceptPr cr = new ConceptPr();
+		
+		if (this.pedagogicalresource.getRelationId() != null && !this.pedagogicalresource.getRelationId().equals(0)) {
+			cr = conceptPrDAO.findById(pedagogicalresource.getRelationId());
+		}
+		
+		
+		for(Map<String,String> maps : jsoned)
+		{
+			Integer id = Integer.valueOf(maps.get("concept"));
+			Integer pId = Integer.valueOf(maps.get("pr"));
+			if(id != null && !id.equals(0) && pId != null && !pId.equals(0))
+			{
+				cr.setPedagogicalresource(pedagogicalresourceDAO.findById(pId));
+				cr.setConcept(conceptDAO.findById(id));
+				cr.setValue(maps.get("values"));
+				cr.setRequiredKnowledge(maps.get("rk"));
+				
+				conceptPrDAO.save(cr);
+			}
+		}
+
+		
+		pedagogicalresource.getErrors().add("Relation Saved Successfully");
+		Map<String,Object> responseMap = new LinkedHashMap<String, Object>();
+		responseMap.put("messages", pedagogicalresource.getErrors());
+		responseMap.put("relationId", cr.getId());
+		responseMap.put("source", cr.getConcept().getId());
+		responseMap.put("target", cr.getPedagogicalresource().getId());
+		responseMap.put("name", cr.getId());
+		pedagogicalresource.setJson(gson.toJson(responseMap));
+	}
+	
+	public void showJsonRelation() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Map<String, List<Map<String, Object>>> myMap = new LinkedHashMap<String, List<Map<String, Object>>>();
+
+		List<Map<String, Object>> metaDataList = new ArrayList<Map<String, Object>>();
+
+		ConceptDAO conceptDAO = new ConceptDAO();
+		PedagogicalresourceDAO pedagogicalresourceDAO = new PedagogicalresourceDAO();
+		
+		List<Concept> conceptList = conceptDAO.findOfProject(pedagogicalresource.getProjectId());
+		List<Pedagogicalresource> prList = pedagogicalresourceDAO.findOfProject(pedagogicalresource.getProjectId());
+
+
+		Map<String, Object> conceptNameMap = new LinkedHashMap<String, Object>();
+		conceptNameMap.put("name", "concept");
+		conceptNameMap.put("label", "Concept");
+		conceptNameMap.put("datatype", "string");
+		conceptNameMap.put("editable", true);
+
+		Map<String, String> conceptValueMap = new LinkedHashMap<String, String>();
+		conceptValueMap.put("0","Select a concept");
+		for (Concept c : conceptList) {
+			conceptValueMap.put(c.getId().toString(), c.getName());
+		}
+		conceptNameMap.put("values", conceptValueMap);
+		metaDataList.add(conceptNameMap);
+		
+		
+		Map<String, Object> prNameMap = new LinkedHashMap<String, Object>();
+		prNameMap.put("name", "pr");
+		prNameMap.put("label", "Pedagogical Resource");
+		prNameMap.put("datatype", "string");
+		prNameMap.put("editable", true);
+
+		Map<String, String> prValueMap = new LinkedHashMap<String, String>();
+		prValueMap.put("0","Select a PR");
+		for (Pedagogicalresource c : prList) {
+			prValueMap.put(c.getId().toString(), c.getName());
+		}
+		prNameMap.put("values", prValueMap);
+		metaDataList.add(prNameMap);
+
+
+		Map<String, Object> valuesNameMap = new LinkedHashMap<String, Object>();
+		valuesNameMap.put("name", "values");
+		valuesNameMap.put("label", "Values");
+		valuesNameMap.put("datatype", "string");
+		valuesNameMap.put("editable", true);
+
+		Map<Integer, String> valuesValueMap = new LinkedHashMap<Integer, String>();
+		valuesValueMap.put(0, "Select a value");
+		valuesValueMap.put(10, "10");
+		valuesValueMap.put(20, "20");
+		valuesValueMap.put(30, "30");
+		valuesValueMap.put(40, "40");
+		valuesValueMap.put(50, "50");
+		valuesValueMap.put(60, "60");
+		valuesValueMap.put(70, "70");
+		valuesValueMap.put(80, "80");
+		valuesValueMap.put(90, "90");
+		valuesValueMap.put(100, "100");
+
+		valuesNameMap.put("values", valuesValueMap);
+		metaDataList.add(valuesNameMap);
+		
+		Map<String, Object> rkNameMap = new LinkedHashMap<String, Object>();
+		rkNameMap.put("name", "rk");
+		rkNameMap.put("label", "Required Knowledge");
+		rkNameMap.put("datatype", "string");
+		rkNameMap.put("editable", true);
+
+		Map<Integer, String> rkValueMap = new LinkedHashMap<Integer, String>();
+		rkValueMap.put(0, "Select a value");
+		rkValueMap.put(10, "10");
+		rkValueMap.put(20, "20");
+		rkValueMap.put(30, "30");
+		rkValueMap.put(40, "40");
+		rkValueMap.put(50, "50");
+		rkValueMap.put(60, "60");
+		rkValueMap.put(70, "70");
+		rkValueMap.put(80, "80");
+		rkValueMap.put(90, "90");
+		rkValueMap.put(100, "100");
+
+		rkNameMap.put("values", rkValueMap);
+		metaDataList.add(rkNameMap);
+
+		myMap.put("metadata", metaDataList);
+		
+		this.pedagogicalresource.setNewObject(false);
+
+		ConceptPr cr = new ConceptPr();
+		if (this.pedagogicalresource.getRelationId() != null && !this.pedagogicalresource.getRelationId().equals(0)) {
+			ConceptPrDAO conceptPrDAO = new ConceptPrDAO();
+			cr = conceptPrDAO.findById(this.pedagogicalresource.getRelationId());
+			this.pedagogicalresource.setNewObject(true);
+		}
+			
+
+			List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+
+			
+				Map<String, Object> dataMap = new LinkedHashMap<String, Object>();
+				dataMap.put("id", pedagogicalresource.getNewObject() ? cr.getId():0);
+				Map<String, String> dataValueMap = new LinkedHashMap<String, String>();
+				dataValueMap.put("concept", pedagogicalresource.getNewObject() ? cr.getConcept().getId()
+						.toString():"0");
+				dataValueMap.put("pr", pedagogicalresource.getNewObject() ? cr.getPedagogicalresource().getId()
+						.toString():"0");				
+				dataValueMap.put("values", pedagogicalresource.getNewObject() ? cr.getValue():"0");
+				dataValueMap.put("rk", pedagogicalresource.getNewObject() ? cr.getRequiredKnowledge():"0");
+				dataValueMap.put("action", " ");
+				dataMap.put("values", dataValueMap);
+				dataList.add(dataMap);
+			
+			myMap.put("data", dataList);
+			
+		pedagogicalresource.setJson(gson.toJson(myMap));
+	}
+
+
+
+
+}
